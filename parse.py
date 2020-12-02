@@ -47,5 +47,8 @@ if __name__ == '__main__':
             sys.exit()
         # regex = r"[\w\d\n#'\"]+{word}[\w\d\n#'\"]+" оказалось ненужным
         for word in user_input.split():
-            print(dict(filter(lambda mem: word in mem, memes.keys())))
+            if list(filter(lambda mem: word in mem, memes)):
+                print(list(filter(lambda mem: word in mem, memes)))
+            else:
+                print(list(filter(lambda mem: word.title() in mem, memes)))
             # Норм спарсились мемы с другими ссылками со страницами, надо будет отфильтровать словарь с мемами
