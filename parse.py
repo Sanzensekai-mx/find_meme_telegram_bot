@@ -23,7 +23,6 @@ html = response.content
 
 soup = BeautifulSoup(html, 'html.parser')
 
-
 # print(soup.html.head.title.text)
 alphabet = [letter.text for letter in soup.find_all('a', attrs={'class': 'letter-nav'})
             if letter.text.isdigit() is True or letter.text.isalpha() is True]
@@ -46,9 +45,13 @@ if __name__ == '__main__':
         if user_input == '':
             sys.exit()
         # regex = r"[\w\d\n#'\"]+{word}[\w\d\n#'\"]+" оказалось ненужным
+        print('Результаты запроса: ')
+        result = set()
         for word in user_input.split():
-            if list(filter(lambda mem: word in mem, memes)):
-                print(list(filter(lambda mem: word in mem, memes)))
-            else:
-                print(list(filter(lambda mem: word.title() in mem, memes)))
+            result_match_one_word = set()
+            result_match_one_word.update(set(list(filter(lambda mem: word in mem, memes))))
+            result_match_one_word.update(set(list(filter(lambda mem: word.title() in mem, memes))))
+            result.update(result_match_one_word)
             # Норм спарсились мемы с другими ссылками со страницами, надо будет отфильтровать словарь с мемами
+        for num, res in enumerate(result, 1):
+            print(f'{num}. {res} - {memes[res]}')
