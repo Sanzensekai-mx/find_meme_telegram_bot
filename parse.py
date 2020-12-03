@@ -60,7 +60,7 @@ def parse_one_mem(url):     # делаем парс парс по страниц
         parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.img['src'],
                                                     'mem_describe': obj_mem_describe.p.text}})
     except AttributeError:
-        parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.div.img['src'],
+        parse_result.update({obj_mem_title.text: {'picture_sourse': None,
                                                   'mem_describe': obj_mem_describe.p.text}})
     return parse_result
 
