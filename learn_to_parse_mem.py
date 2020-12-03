@@ -42,15 +42,18 @@ for k in memes_not_clear.copy().keys():  # Цикл по итогу отфиль
     if k not in clear_mem_list:
         continue
     memes[k] = memes_not_clear[k]
+
+
 # print(memes)
 
 
-def parse_one_mem(url):     # делаем парс парс по странице конкретного мема
+def parse_one_mem(url):  # делаем парс парс по странице конкретного мема
     parse_result = {}
     response_mem = requests.get(url)
     html_mem = response_mem.content
     soup_mem = BeautifulSoup(html_mem, 'html.parser')
-    obj_mem_picture = soup_mem.find('figure', attrs={'class': 's-post-media-img post-thumbnail post-media-b'})  # Проблемная залупа
+    obj_mem_picture = soup_mem.find('figure', attrs={
+        'class': 's-post-media-img post-thumbnail post-media-b'})
     obj_mem_title = soup_mem.find('h1', attrs={'class': 'entry-title s-post-title bb-mb-el'})
     obj_mem_describe = soup_mem.find('div', attrs={'class':
                                                        'js-mediator-article s-post-content s-post-small-el bb-mb-el',
@@ -58,9 +61,10 @@ def parse_one_mem(url):     # делаем парс парс по страниц
                                                        'articleBody'})
     try:
         parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.img['src'],
-                                                    'mem_describe': obj_mem_describe.p.text}})
+                                                  'mem_describe': obj_mem_describe.p.text}})
     except AttributeError:
-        parse_result.update({obj_mem_title.text: {'picture_sourse': None,  # Проблемная залупа
+        obj_mem_picture = soup_mem.find('div', attrs={'class': 'bb-media-placeholder'})
+        parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.img['src'],
                                                   'mem_describe': obj_mem_describe.p.text}})
     return parse_result
 
@@ -97,4 +101,3 @@ if __name__ == '__main__':
                     continue
                 break
             print(parse_one_mem(dict_of_result_request[int(user_choise)][1]))
-
