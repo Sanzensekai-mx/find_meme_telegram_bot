@@ -27,7 +27,7 @@ soup = BeautifulSoup(html, 'html.parser')
 alphabet = [letter.text for letter in soup.find_all('a', attrs={'class': 'letter-nav'})
             if letter.text.isdigit() is True or letter.text.isalpha() is True]
 # print(alphabet)
-# команда должна найти элемент, который лежит внутри тега a и имеет класс photo
+# команда должна найти элемент, который лежит внутри тега 'a' и имеет класс photo
 # obj = soup.find('a', attrs={'class': 'photo'})
 # obj = soup.find(lambda tag: tag.name == 'a' and tag.get('class') == ['photo'])
 # obj = soup.find('li', attrs={'id': 'А'})
@@ -42,7 +42,28 @@ for k in memes_not_clear.copy().keys():  # Цикл по итогу отфиль
     if k not in clear_mem_list:
         continue
     memes[k] = memes_not_clear[k]
-print(memes)
+# print(memes)
+
+
+def parse_one_mem(url):     # делаем парс парс по странице конкретного мема
+    parse_result = {}
+    response_mem = requests.get(url)
+    html_mem = response_mem.content
+    soup_mem = BeautifulSoup(html_mem, 'html.parser')
+    obj_mem_picture = soup_mem.find('figure', attrs={'class': 's-post-media-img post-thumbnail post-media-b'})
+    obj_mem_title = soup_mem.find('h1', attrs={'class': 'entry-title s-post-title bb-mb-el'})
+    obj_mem_describe = soup_mem.find('div', attrs={'class':
+                                                       'js-mediator-article s-post-content s-post-small-el bb-mb-el',
+                                                   'itemprop':
+                                                       'articleBody'})
+    try:
+        parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.img['src'],
+                                                    'mem_describe': obj_mem_describe.p.text}})
+    except AttributeError:
+        parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.div.img['src'],
+                                                  'mem_describe': obj_mem_describe.p.text}})
+    return parse_result
+
 
 if __name__ == '__main__':
     while True:
@@ -55,9 +76,25 @@ if __name__ == '__main__':
         result = set()
         for word in user_input.split():
             result_match_one_word = set()
-            result_match_one_word.update(set(list(filter(lambda mem: word in mem, memes))))
+            result_match_one_word.update(set(list(filter(lambda mem: word.lower() in mem, memes))))
             result_match_one_word.update(set(list(filter(lambda mem: word.title() in mem, memes))))
             result.update(result_match_one_word)
             # Норм спарсились мемы с другими ссылками со страницами, надо будет отфильтровать словарь с мемами
-        for num, res in enumerate(result, 1):
-            print(f'{num}. {res} - {memes[res]}')
+        if result:
+            dict_of_result_request = {}
+            while True:
+                for num, res in enumerate(result, 1):
+                    print(f'{num}. {res} - {memes[res]}')
+                    dict_of_result_request.update({num: [res, memes[res]]})
+                print('')
+                user_choise = input('--> ')
+                if user_choise == '':
+                    sys.exit()
+                try:
+                    print(dict_of_result_request[int(user_choise)][1])
+                except KeyError:
+                    print('Выбери цифру из результатов!!!!!!!!!!!!!!!!!')
+                    continue
+                break
+            print(parse_one_mem(dict_of_result_request[int(user_choise)][1]))
+
