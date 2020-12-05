@@ -47,20 +47,21 @@ def parse_one_mem(url):  # делаем парс парс по странице 
     return parse_result
 
 
-def add_data_to_dict_for_json():
+with open('mem_dataset.json', 'a+', encoding='utf-8') as mem_data:
+    old_data = json.load(mem_data) if os.path.exists(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json')) else None
+    if old_data:
+        old_data_keys = [key for result in old_data for key in result]
     add_to_file = {}
+    i = 0
     for one_mem, mem_href in memes.items():
+        if i == 5:
+            break
+        if old_data:
+            if one_mem in old_data_keys:
+                print(f'Мем {one_mem} уже существует...')
+                continue
         print(f'Парсится мем: {one_mem}')
         add_to_file.update(parse_one_mem(mem_href))
-    return add_to_file
-
-
-if os.path.exists('mem_dataset.json'):  # Чтоб по новой не заполнять одно и тоже
-    with open('mem_dataset.json', 'a', encoding='utf-8') as w_mem_data, \
-            open('mem_dataset.json', 'r', encoding='utf-8') as r_mem_data:
-
-        json.dump(add_data_to_dict_for_json(), w_mem_data, indent=4, ensure_ascii=False)
-else:
-    with open('mem_dataset.json', 'w', encoding='utf-8') as mem_data:
-        json.dump(add_data_to_dict_for_json(), mem_data, indent=4, ensure_ascii=False)
+        i += 1
+    json.dump(add_to_file, mem_data, indent=4, ensure_ascii=False)
 
