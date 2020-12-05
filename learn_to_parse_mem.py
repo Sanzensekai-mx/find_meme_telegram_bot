@@ -60,12 +60,16 @@ def parse_one_mem(url):  # делаем парс парс по странице 
                                                    'itemprop':
                                                        'articleBody'})
     try:
-        parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.img['src'],
-                                                  'mem_describe': obj_mem_describe.p.text}})
+        parse_result.update({obj_mem_title.text: {'pic_href': obj_mem_picture.img['src'],
+                                                  'describe': obj_mem_describe.p.text.replace('\xa0', ' ')
+                                                  if '\xa0' in obj_mem_describe.p.text
+                                                  else obj_mem_describe.p.text}})
     except AttributeError:
         obj_mem_picture = soup_mem.find('div', attrs={'class': 'bb-media-placeholder'})
-        parse_result.update({obj_mem_title.text: {'picture_sourse': obj_mem_picture.img['src'],
-                                                  'mem_describe': obj_mem_describe.p.text}})
+        parse_result.update({obj_mem_title.text: {'pic_href': obj_mem_picture.img['src'],
+                                                  'describe': obj_mem_describe.p.text.replace('\xa0', ' ')
+                                                  if '\xa0' in obj_mem_describe.p.text
+                                                  else obj_mem_describe.p.text}})
     return parse_result
 
 
