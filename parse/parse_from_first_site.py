@@ -47,21 +47,20 @@ def parse_one_mem(url):  # делаем парс парс по странице 
     return parse_result
 
 
-with open('mem_dataset.json', 'a+', encoding='utf-8') as mem_data:
-    old_data = json.load(mem_data) if os.path.exists(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json')) else None
-    if old_data:
-        old_data_keys = [key for result in old_data for key in result]
-    add_to_file = {}
+with open('mem_dataset.json', 'w+', encoding='utf-8') as mem_data:
+    # old_data = json.load(mem_data)
+    # print(old_data)
+    add_to_file = []
     i = 0
     for one_mem, mem_href in memes.items():
         if i == 5:
             break
-        if old_data:
-            if one_mem in old_data_keys:
-                print(f'Мем {one_mem} уже существует...')
-                continue
+        # if old_data:
+        #     if one_mem in old_data_keys:
+        #         print(f'Мем {one_mem} уже существует...')
+        #         continue
         print(f'Парсится мем: {one_mem}')
-        add_to_file.update(parse_one_mem(mem_href))
+        add_to_file.append(parse_one_mem(mem_href))
         i += 1
     json.dump(add_to_file, mem_data, indent=4, ensure_ascii=False)
 
