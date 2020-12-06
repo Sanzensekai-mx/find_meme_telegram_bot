@@ -4,7 +4,10 @@ import sys
 import re
 import json
 import os
+from datetime import timedelta
+import time
 
+start_time = time.monotonic()
 page_link = 'https://memepedia.ru/all-memes/#.'
 response = requests.get(page_link)
 # print(response)
@@ -18,6 +21,8 @@ for k in memes_not_clear.copy().keys():  # Цикл по итогу отфиль
     if k not in clear_mem_list:
         continue
     memes[k] = memes_not_clear[k]
+
+
 # print(memes)
 
 
@@ -47,20 +52,12 @@ def parse_one_mem(url):  # делаем парс парс по странице 
     return parse_result
 
 
-with open('mem_dataset.json', 'w+', encoding='utf-8') as mem_data:
-    # old_data = json.load(mem_data)
-    # print(old_data)
-    add_to_file = []
-    i = 0
+with open('mem_dataset.json', 'w', encoding='utf-8') as mem_data:
+    add_to_file = {}
     for one_mem, mem_href in memes.items():
-        if i == 5:
-            break
-        # if old_data:
-        #     if one_mem in old_data_keys:
-        #         print(f'Мем {one_mem} уже существует...')
-        #         continue
         print(f'Парсится мем: {one_mem}')
-        add_to_file.append(parse_one_mem(mem_href))
-        i += 1
+        result_parse = parse_one_mem(mem_href)
+        add_to_file.update(result_parse)
     json.dump(add_to_file, mem_data, indent=4, ensure_ascii=False)
-
+end_time = time.monotonic()
+print(timedelta(seconds=end_time - start_time))
