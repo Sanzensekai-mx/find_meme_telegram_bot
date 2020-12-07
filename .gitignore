@@ -128,3 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/*
+
+# token and admin_id
+/data/secret_data.txt
