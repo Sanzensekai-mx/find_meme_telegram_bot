@@ -14,5 +14,3 @@ async def bot_start(message: types.Message):
 Этот бот поможет тебе найти пояснение к мему!
 ''')
     await message.answer('Нажми кнопку ниже для того, чтобы начать!', reply_markup=search)
-
-
