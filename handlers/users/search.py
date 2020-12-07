@@ -24,5 +24,10 @@ async def search_and_show_results(message: Message):
             result_match_one_word.update(set(list(filter(lambda mem: word.lower() in mem, mem_data.keys()))))
             result_match_one_word.update(set(list(filter(lambda mem: word.title() in mem, mem_data.keys()))))
             result.update(result_match_one_word)
-        # await message.answer(list(result)[0]) # Тест
+        # await message.answer(str(len(result)))  # Тест
+        dict_of_result_request = {}
+        for num, res in enumerate(result, 1):
+            await message.answer(f'''
+{num}. {res}''')
+
 
