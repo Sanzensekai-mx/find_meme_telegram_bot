@@ -1,13 +1,12 @@
 import os
 import json
 from keyboards.default import search, canсel
-from keyboards.inline import result_kb
+from keyboards.inline import result_kb, inline_kb1
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from states.search_states import Search
-from loader import dp
+from loader import dp, bot
 from aiogram.dispatcher import FSMContext
-import logging
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
@@ -38,14 +37,6 @@ async def search_and_show_results(message: Message, state: FSMContext):
         for num, res in enumerate(result, 1):
             result_message += f'''
 {num}. {res}\n'''
-        await message.answer(result_message, reply_markup=result_kb)  # Должна будет выводиться inline клавиатура
+    await message.answer(result_message, reply_markup=result_kb)
 
 
-@dp.callback_query_handler(lambda callback_query: True) # не работает нихуя
-async def process_callback_next_button(callback_query: CallbackQuery):
-    # await callback_query.answer(callback_query.id)
-    # await callback_query.send_message(callback_query.from_user.id, 'Нажата первая кнопка!')
-    await callback_query.answer('Следующая страница...')
-    # callback_data = callback_query.data
-    # logging.info(f"{callback_data=}")
-    # await callback_query.message.answer("Следующая страница...")
