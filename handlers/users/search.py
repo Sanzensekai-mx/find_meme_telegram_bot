@@ -10,13 +10,7 @@ from states.search_states import Search
 from loader import dp, bot
 from aiogram.dispatcher import FSMContext
 
-
-def chunks(lst, count):
-    start = 0
-    for i in range(count):
-        stop = start + len(lst[i::count])
-        yield lst[start:stop]
-        start = stop
+keyboards = {}
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
@@ -41,7 +35,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
             result_match_one_word.update(set(list(filter(lambda mem: word.lower() in mem, mem_data.keys()))))
             result_match_one_word.update(set(list(filter(lambda mem: word.title() in mem, mem_data.keys()))))
             result.update(result_match_one_word)
-        await message.answer(str(len(result)))  # Тест
+        # await message.answer(str(len(result)))  # Тест
         dict_of_result_request = {}
         if len(result) < 10:  # Походу придется прямо здесь создавать клавиатуру
             result_kb = InlineKeyboardMarkup()
@@ -52,19 +46,37 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_message += f'{num}. {res}\n\n'
             await message.answer(result_message, reply_markup=result_kb)
         elif len(result) > 10:
+            # result_kb = InlineKeyboardMarkup()
             number_of_pages = ceil(len(result) / 10)
-            result_kb = InlineKeyboardMarkup()
             result_message = ''
             rule_np_list = []
             for el in range(number_of_pages):
                 if el == 0:
-                    rule_np_list.append(11)
+                    rule_np_list.append(10)
                     continue
                 rule_np_list.append(rule_np_list[el - 1] + 10)
             list_of_lists = np.array_split(list(result), rule_np_list)
-            for l in list_of_lists:
-                for num, res in enumerate(l, 1):
-                    res_button = InlineKeyboardButton(str(f'{num}'), callback_data=f'res_{num}')
-                    result_kb.insert(res_button)
+            # Клавиатура для каждой страницы
+            # keyboards = {}
+            for page_num in range(number_of_pages):
+                if page_num == 0:
+                    keyboards.update({page_num + 1: InlineKeyboardMarkup(inline_keyboard=[
+                        [InlineKeyboardButton('➡️', callback_data='next_page')]])})
+                    continue
+                if page_num == list(range(number_of_pages))[-1]:
+                    keyboards.update({page_num + 1: InlineKeyboardMarkup(inline_keyboard=[
+                        [InlineKeyboardButton('⬅️', callback_data='previous_page')]])})
+                    continue
+                keyboards.update({page_num + 1: InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton('⬅️', callback_data='previous_page')],
+                    [InlineKeyboardButton('➡️', callback_data='next_page')]])})
+            # Наверное стоит это как то в функцию захуярить, я валяюсь
+            for num, res in enumerate(list_of_lists[0], 1):   # Индивидуально для каждой страницы должно быть
+                res_button = InlineKeyboardButton(str(f'{num}'), callback_data=f'res_{num}')
+                if num == 1:
+                    keyboards[1].add(res_button)
                     result_message += f'{num}. {res}\n\n'
-            await message.answer(result_message, reply_markup=result_kb)
+                    continue
+                keyboards[1].insert(res_button)
+                result_message += f'{num}. {res}\n\n'
+            await message.answer(result_message, reply_markup=keyboards[1])
