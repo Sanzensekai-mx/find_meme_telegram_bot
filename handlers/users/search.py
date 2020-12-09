@@ -11,6 +11,7 @@ from aiogram.dispatcher import FSMContext
 from keyboards.inline.callback_datas import mem_callback
 
 # keyboards = {}
+result_one_search = {}
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
@@ -35,23 +36,24 @@ async def search_and_show_results(message: Message, state: FSMContext):
             result_match_one_word.update(set(list(filter(lambda mem: word.lower() in mem, mem_data.keys()))))
             result_match_one_word.update(set(list(filter(lambda mem: word.title() in mem, mem_data.keys()))))
             result_search.update(result_match_one_word)
-        for w in result_search:
-            await message.answer(w)
-        await message.answer(str(len(result_search)))  # Тест
-        if len(result_search) < 9:  # Походу придется прямо здесь создавать клавиатуру
+        # for w in result_search:
+        #     await message.answer(w)
+        # await message.answer(str(len(result_search)))  # Тест
+        if len(result_search) < 9:
+            result_one_search.clear()
             # keyboards = {}
-            # keyboards.clear()
-            result_kb = InlineKeyboardMarkup()
+            result_kb = InlineKeyboardMarkup(row_width=3)
             result_message = ''
             # result_kb.update({1: InlineKeyboardMarkup()})
             for num, res in enumerate(list(result_search), 1):
-                # res_button = InlineKeyboardButton(str(num), callback_data=mem_callback.new(mem_btn_id=f'res_{num}', mem_name={res}))
-                res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}")
+                res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
+                result_one_search.update({str(num): res})
                 result_kb.insert(res_button)
                 result_message += f'{num}. {res}\n\n'
             # await message.answer(result_kb[0])
             await message.answer(result_message, reply_markup=result_kb)     # 1 - временно
         elif len(result_search) > 9:
+            result_one_search.clear()
             # keyboards.clear()
             # result_kb = InlineKeyboardMarkup()
             number_of_pages = ceil(len(result_search) / 9)
@@ -67,7 +69,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
             keyboards = {}
             for page_num in range(number_of_pages):
                 if page_num == 0:
-                    keyboards.update({page_num + 1: InlineKeyboardMarkup(inline_keyboard=[
+                    keyboards.update({page_num + 1: InlineKeyboardMarkup(row_width=3, inline_keyboard=[
                         [InlineKeyboardButton('➡️', callback_data='next_page')]])})
                     continue
                 if page_num == list(range(number_of_pages))[-1]:
@@ -79,9 +81,8 @@ async def search_and_show_results(message: Message, state: FSMContext):
                     [InlineKeyboardButton('➡️', callback_data='next_page')]])})
             # Наверное стоит это как то в функцию захуярить, я валяюсь
             for num, res in enumerate(list(list_of_lists)[0], 1):   # Индивидуально для каждой страницы должно быть
-                res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}")
-                # res_button = InlineKeyboardButton(str(num), callback_data=mem_callback.new(mem_btn_id=f'res_{num}',
-                #                                                                            mem_name={res}))
+                res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
+                result_one_search.update({str(num): res})
                 if num == 1:
                     keyboards[1].add(res_button)
                     result_message += f'{num}. {res}\n\n'

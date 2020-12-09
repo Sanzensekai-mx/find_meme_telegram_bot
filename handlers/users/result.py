@@ -9,6 +9,7 @@ from aiogram.dispatcher import FSMContext
 import logging
 import os
 import json
+from .search import result_one_search
 
 
 # Заработало, надо было добавить state
@@ -20,12 +21,12 @@ async def process_callback_res_num_button(call: CallbackQuery):
     # await call.message.answer(call.data)
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') as dataset:
         mem_data = json.load(dataset)
-        mem_name = call.data.split(':')[1]
+        mem_id = call.data.split(':')[1]
         # await call.message.answer(mem_name)
-        await bot.send_photo(chat_id=call.from_user.id, photo=mem_data[mem_name]['pic_href'])
+        await bot.send_photo(chat_id=call.from_user.id, photo=mem_data[result_one_search[mem_id]]['pic_href'])
         # await SendPhoto(call.id, mem_data[mem_name]['pic_href'])
         # await call.message.answer(mem_data[mem_name]['pic_href'])   # Тут должен присылать картинку, а не тупо ссылку
-        await call.message.answer(mem_data[mem_name]['describe'])
+        await call.message.answer(mem_data[result_one_search[mem_id]]['describe'])
         # last_result_message = ''
         # for num, res in enumerate(list(result_search), 1):
         #     last_result_message += f'{num}. {res}\n\n'
