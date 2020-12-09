@@ -1,5 +1,5 @@
 from keyboards.default import search, canсel
-from keyboards.inline import result_kb, inline_kb1
+from keyboards.inline import result_kb_1_page_less_10, inline_kb1
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from states.search_states import Search
@@ -9,7 +9,8 @@ import logging
 
 
 # Заработало, надо было добавить state
-@dp.callback_query_handler(lambda c: c.data == 'next page', state=Search.search_input_key_words)
+# @dp.callback_query_handler(lambda c: c.data == 'next page', state=Search.search_input_key_words)
+@dp.callback_query_handler(lambda call: True, state=Search.search_input_key_words)
 async def process_callback_next_button(call: CallbackQuery):
     await call.answer(cache_time=60)
     await call.message.answer('Следующая страница')
