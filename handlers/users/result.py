@@ -1,3 +1,4 @@
+from aiogram.dispatcher.webhook import SendPhoto
 from keyboards.default import search, canсel
 from keyboards.inline import result_kb_1_page_less_10, inline_kb1
 from aiogram.dispatcher.filters import Text
@@ -6,7 +7,8 @@ from states.search_states import Search
 from loader import dp, bot
 from aiogram.dispatcher import FSMContext
 import logging
-from .search import keyboards
+import os
+import json
 
 
 # Заработало, надо было добавить state
@@ -14,9 +16,21 @@ from .search import keyboards
 @dp.callback_query_handler(text_contains='res', state=Search.search_input_key_words) # Прописать алгоритм для номерных кнопок
 async def process_callback_res_num_button(call: CallbackQuery):
     await call.answer(cache_time=60)
-    await call.message.answer('Номерная кнопка')
-    # await bot.answer_callback_query(call.id)
-    # await bot.send_message(call.from_user.id, 'Следующая страница!')
+    # await call.message.answer('Номерная кнопка')
+    # await call.message.answer(call.data)
+    with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') as dataset:
+        mem_data = json.load(dataset)
+        mem_name = call.data.split(':')[1]
+        # await call.message.answer(mem_name)
+        await bot.send_photo(chat_id=call.from_user.id, photo=mem_data[mem_name]['pic_href'])
+        # await SendPhoto(call.id, mem_data[mem_name]['pic_href'])
+        # await call.message.answer(mem_data[mem_name]['pic_href'])   # Тут должен присылать картинку, а не тупо ссылку
+        await call.message.answer(mem_data[mem_name]['describe'])
+        # last_result_message = ''
+        # for num, res in enumerate(list(result_search), 1):
+        #     last_result_message += f'{num}. {res}\n\n'
+        # await call.message.answer(last_result_message)
+        # await call.message.answer(last_result_message, reply_markup=keyboards[1])   # 0 - временно
 
 
 # Этот хэндлер должен как то еще выводить результат поиска

@@ -38,26 +38,38 @@ def parse_one_mem(url):  # делаем парс парс по странице 
                                                        'js-mediator-article s-post-content s-post-small-el bb-mb-el',
                                                    'itemprop':
                                                        'articleBody'})
+    mem_name = list(obj_mem_title.text)
+    for c in mem_name.copy():
+        if c in '“”':
+            mem_name.remove(c)
+    mem_name = "".join(mem_name)
     try:
-        parse_result.update({obj_mem_title.text: {'pic_href': obj_mem_picture.img['src'],
-                                                  'describe': obj_mem_describe.p.text.replace('\xa0', ' ')
-                                                  if '\xa0' in obj_mem_describe.p.text
-                                                  else obj_mem_describe.p.text}})
+        parse_result.update({mem_name: {'pic_href': obj_mem_picture.img['src'],
+                                                         'describe': obj_mem_describe.p.text.replace('\xa0',
+                                                                                                     ' ')
+                                                         if '\xa0' in obj_mem_describe.p.text
+                                                         else obj_mem_describe.p.text}})
     except AttributeError:
         obj_mem_picture = soup_mem.find('div', attrs={'class': 'bb-media-placeholder'})
-        parse_result.update({obj_mem_title.text: {'pic_href': obj_mem_picture.img['src'],
-                                                  'describe': obj_mem_describe.p.text.replace('\xa0', ' ')
-                                                  if '\xa0' in obj_mem_describe.p.text
-                                                  else obj_mem_describe.p.text}})
+        parse_result.update({mem_name: {'pic_href': obj_mem_picture.img['src'],
+                                                         'describe': obj_mem_describe.p.text.replace('\xa0',
+                                                                                                     ' ')
+                                                         if '\xa0' in obj_mem_describe.p.text
+                                                         else obj_mem_describe.p.text}})
     return parse_result
 
 
 with open('mem_dataset.json', 'w', encoding='utf-8') as mem_data:
     add_to_file = {}
+    # i = 0
     for one_mem, mem_href in memes.items():
+        # if i == 5:
+        #     break
+        one_mem = one_mem.replace('"', '')
         print(f'Парсится мем: {one_mem}')
         result_parse = parse_one_mem(mem_href)
         add_to_file.update(result_parse)
+        # i += 1
     json.dump(add_to_file, mem_data, indent=4, ensure_ascii=False)
 end_time = time.monotonic()
 print(timedelta(seconds=end_time - start_time))
