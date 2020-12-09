@@ -2,6 +2,7 @@ aiogram~=2.11.2
 aiohttp
 aioredis
 python-dotenv~=0.15.0
+numpy~=1.19.3
 
 requests~=2.25.0
 beautifulsoup4~=4.9.3
