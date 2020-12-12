@@ -1,12 +1,8 @@
-from aiogram.dispatcher.webhook import SendPhoto
-from keyboards.default import search, canсel
-from keyboards.inline import result_kb_1_page_less_10, inline_kb1
-from aiogram.dispatcher.filters import Text
+from keyboards.inline import inline_kb1
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from states.search_states import Search
 from loader import dp, bot
-from aiogram.dispatcher import FSMContext
-import logging
+
 import os
 import json
 from .search import result_one_search
@@ -40,7 +36,7 @@ async def process_callback_page_button(call: CallbackQuery):
     await call.answer(cache_time=60)
     await call.message.answer('Кнопка смены страницы')
     if call.data == 'next_page':
-        await call.message.answer('ААААААА', reply_markup=keyboards[2])
+        await call.message.answer('Не лезь, не работает пока')
 
 
 # Test

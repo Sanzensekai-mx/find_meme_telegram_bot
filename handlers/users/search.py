@@ -89,5 +89,5 @@ async def search_and_show_results(message: Message, state: FSMContext):
                     continue
                 keyboards[1].insert(res_button)
                 result_message += f'{num}. {res}\n\n'
-            result_message += f'Cтраница {1} из {number_of_pages}'
+            result_message += f'Cтраница {1} из {number_of_pages}'  # current_page
             await message.answer(result_message, reply_markup=keyboards[1])     # 1 - временно
