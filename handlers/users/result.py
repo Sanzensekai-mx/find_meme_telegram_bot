@@ -40,10 +40,10 @@ async def process_callback_res_num_button(call: CallbackQuery):
         mem_data = json.load(dataset)
         mem_id = call.data.split(':')[1]
         # await call.message.answer(mem_name)
-        await bot.send_photo(chat_id=call.from_user.id, photo=mem_data[result_mem_search_by_page[mem_id]]['pic_href'])
+        await bot.send_photo(chat_id=call.from_user.id, photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]['pic_href'])
         # await SendPhoto(call.id, mem_data[mem_name]['pic_href'])
         # await call.message.answer(mem_data[mem_name]['pic_href'])   # Тут должен присылать картинку, а не тупо ссылку
-        await call.message.answer(mem_data[result_mem_search_by_page[mem_id]]['describe'])
+        await call.message.answer(mem_data[result_mem_search_by_page[current_page.value][mem_id]]['describe'])
         # last_result_message = ''
         # for num, res in enumerate(list(result_search), 1):
         #     last_result_message += f'{num}. {res}\n\n'
@@ -55,7 +55,7 @@ async def process_callback_res_num_button(call: CallbackQuery):
 @dp.callback_query_handler(text_contains='page', state=Search.search_input_key_words)
 async def process_callback_page_button(call: CallbackQuery):
     await call.answer(cache_time=60)
-    await call.message.answer('Кнопка смены страницы')
+    # await call.message.answer('Кнопка смены страницы')
     if call.data == 'next_page':
         # await call.message.answer('Не лезь, не работает пока')
         await call.message.answer(all_result_messages[current_page.value + 1], reply_markup=keyboards[current_page.value + 1])

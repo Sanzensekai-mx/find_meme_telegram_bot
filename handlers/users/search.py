@@ -46,13 +46,14 @@ async def search_and_show_results(message: Message, state: FSMContext):
             result_kb = InlineKeyboardMarkup(row_width=3)
             result_message = ''
             # result_kb.update({1: InlineKeyboardMarkup()})
+            result_mem_search_by_page.update({1: {}})
             for num, res in enumerate(list(result_search), 1):
                 res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
-                result_mem_search_by_page.update({str(num): res})
+                result_mem_search_by_page[1].update({str(num): res})
                 result_kb.insert(res_button)
                 result_message += f'{num}. {res}\n\n'
             # await message.answer(result_kb[0])
-            await message.answer(result_message, reply_markup=result_kb)  # 1 - временно
+            await message.answer(result_message, reply_markup=result_kb)
         elif len(result_search) > 9:
             result_mem_search_by_page.clear()
             # keyboards.clear()
@@ -81,11 +82,12 @@ async def search_and_show_results(message: Message, state: FSMContext):
                     [InlineKeyboardButton('➡️', callback_data='next_page')]])})
             # Наверное стоит это как то в функцию захуярить, я валяюсь
             for page_num, page in enumerate(range(number_of_pages), 1):
+                result_mem_search_by_page.update({page_num: {}})
                 # Индивидуально для каждой страницы должно быть
                 result_message = ''
                 for num, res in enumerate(list(search_results_by_pages)[page], 1):
                     res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
-                    result_mem_search_by_page.update({str(num): res})
+                    result_mem_search_by_page[page_num].update({str(num): res})
                     if num == 1:
                         keyboards_inside[page_num].add(res_button)
                         result_message += f'{num}. {res}\n\n'
