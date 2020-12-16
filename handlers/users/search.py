@@ -52,7 +52,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_kb.insert(res_button)
                 result_message += f'{num}. {res}\n\n'
             # await message.answer(result_kb[0])
-            await message.answer(result_message, reply_markup=result_kb)     # 1 - временно
+            await message.answer(result_message, reply_markup=result_kb)  # 1 - временно
         elif len(result_search) > 9:
             result_mem_search_by_page.clear()
             # keyboards.clear()
@@ -98,4 +98,4 @@ async def search_and_show_results(message: Message, state: FSMContext):
             # await message.answer(all_result_messages[2])
             # await message.answer('1')
             # await message.answer(all_result_messages[2], reply_markup=keyboards[2])
-            await message.answer(all_result_messages[1], reply_markup=keyboards[1])     # С первой страницы
+            await message.answer(all_result_messages[1], reply_markup=keyboards[1])  # С первой страницы

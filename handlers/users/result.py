@@ -7,7 +7,26 @@ import os
 import json
 from .search import result_mem_search_by_page, keyboards, all_result_messages
 
-current_page = 1
+
+class PageCounter:
+
+    def __init__(self):
+        self._value = 1
+
+    def next_value(self):
+        self._value += 1
+        return self._value
+
+    def previous_value(self):
+        self._value -= 1
+        return self._value
+
+    @property
+    def value(self):
+        return self._value
+
+
+current_page = PageCounter()
 
 
 # Заработало, надо было добавить state
@@ -39,9 +58,11 @@ async def process_callback_page_button(call: CallbackQuery):
     await call.message.answer('Кнопка смены страницы')
     if call.data == 'next_page':
         # await call.message.answer('Не лезь, не работает пока')
-        await call.message.answer(all_result_messages[current_page + 1], reply_markup=keyboards[current_page + 1])
+        await call.message.answer(all_result_messages[current_page.value + 1], reply_markup=keyboards[current_page.value + 1])
+        current_page.next_value()
     elif call.data == 'previous_page':
-        await call.message.answer(all_result_messages[current_page - 1], reply_markup=keyboards[current_page - 1])
+        await call.message.answer(all_result_messages[current_page.value - 1], reply_markup=keyboards[current_page.value - 1])
+        current_page.previous_value()
 
 
 # Test
