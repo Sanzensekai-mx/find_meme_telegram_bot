@@ -1,6 +1,6 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-canсel = ReplyKeyboardMarkup(
+cancel = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="Отмена"),

@@ -21,12 +21,17 @@ class PageCounter:
         self._value -= 1
         return self._value
 
+    def reset_value(self):
+        self._value = 1
+
     @property
     def value(self):
         return self._value
 
 
-current_page = PageCounter()
+current_page = PageCounter()    # Баг с ненормальной работой бота при новом запросе мема при значении текущей
+# страницы > 1. Необходимо придумать каким способом обнулять счетчик, при ловле в search_and_show_results в
+# search.py
 
 
 # Заработало, надо было добавить state

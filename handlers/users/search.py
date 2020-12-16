@@ -2,20 +2,19 @@ import os
 import json
 from math import ceil
 import numpy as np
-from keyboards.default import search, canсel
+from keyboards.default import search, cancel, start_search
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from states.search_states import Search
 from loader import dp
 from aiogram.dispatcher import FSMContext
-from keyboards.inline.callback_datas import mem_callback
 
 keyboards = {}
 result_mem_search_by_page = {}
 all_result_messages = {}
 
 
-@dp.message_handler(Text(equals=['Начать поиск мема']))
+@dp.message_handler(Text(equals=['Начать поиск мема', 'Искать новый мем']))
 async def wait_for_mem_request(message: Message):
     await Search.search_input_key_words.set()
     await message.answer('Введите ключевые слова для поиска мема в базе', reply_markup=ReplyKeyboardRemove())
@@ -23,23 +22,19 @@ async def wait_for_mem_request(message: Message):
 
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
-    if message.text == 'Отмена':
+    if message.text == 'Искать новый мем':
         await state.finish()
         await message.answer('Отмена.', reply_markup=search)
     else:  # Else тут полюбому нужен, иначе 'Результат поиска' выводится и после отмены
-        await message.answer('Результат поиска:', reply_markup=canсel)
+        await message.answer('Результат поиска:', reply_markup=cancel)
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') as dataset:
         mem_data = json.load(dataset)
-        # for mem, data in mem_data.items():
         result_search = set()
         for word in str(message.text).split():  # Примитивнейший механизм поиска даже стыдно немного
             result_match_one_word = set()
             result_match_one_word.update(set(list(filter(lambda mem: word.lower() in mem, mem_data.keys()))))
             result_match_one_word.update(set(list(filter(lambda mem: word.title() in mem, mem_data.keys()))))
             result_search.update(result_match_one_word)
-        # for w in result_search:
-        #     await message.answer(w)
-        # await message.answer(str(len(result_search)))  # Тест
         if len(result_search) < 9:
             result_mem_search_by_page.clear()
             # keyboards = {}
@@ -52,12 +47,9 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_mem_search_by_page[1].update({str(num): res})
                 result_kb.insert(res_button)
                 result_message += f'{num}. {res}\n\n'
-            # await message.answer(result_kb[0])
             await message.answer(result_message, reply_markup=result_kb)
         elif len(result_search) > 9:
             result_mem_search_by_page.clear()
-            # keyboards.clear()
-            # result_kb = InlineKeyboardMarkup()
             number_of_pages = ceil(len(result_search) / 9)
             rule_np_list = []
             for el in range(number_of_pages):
@@ -97,7 +89,4 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_message += f'Страница {page_num} из {number_of_pages}'  # current_page
                 all_result_messages.update({page_num: result_message})
             keyboards.update(keyboards_inside)
-            # await message.answer(all_result_messages[2])
-            # await message.answer('1')
-            # await message.answer(all_result_messages[2], reply_markup=keyboards[2])
             await message.answer(all_result_messages[1], reply_markup=keyboards[1])  # С первой страницы

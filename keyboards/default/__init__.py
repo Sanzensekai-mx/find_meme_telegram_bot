@@ -1,2 +1,2 @@
 from .start_search import search
-from .canсel import canсel
+from .canсel import cancel
