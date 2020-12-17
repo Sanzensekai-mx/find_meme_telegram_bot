@@ -12,6 +12,8 @@ from aiogram.dispatcher import FSMContext
 keyboards = {}
 result_mem_search_by_page = {}
 all_result_messages = {}
+# request = []
+# is_it_new_request = []
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема', 'Искать новый мем']))
@@ -22,11 +24,22 @@ async def wait_for_mem_request(message: Message):
 
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
-    if message.text == 'Искать новый мем':
+    if message.text == 'Отмена':
         await state.finish()
         await message.answer('Отмена.', reply_markup=search)
     else:  # Else тут полюбому нужен, иначе 'Результат поиска' выводится и после отмены
         await message.answer('Результат поиска:', reply_markup=cancel)
+    # print(request)
+    # if not request:
+    #     request.append(message.text)
+    #     is_it_new_request.append(False)
+    # else:
+    #     is_it_new_request.clear()
+    #     request.clear()
+    #     request.append(message.text)
+    #     is_it_new_request.append(True)
+    # print(request)
+    # print(is_it_new_request)
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') as dataset:
         mem_data = json.load(dataset)
         result_search = set()
