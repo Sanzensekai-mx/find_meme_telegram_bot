@@ -45,17 +45,17 @@ def parse_one_mem(url):  # делаем парс парс по странице 
     mem_name = "".join(mem_name)
     try:
         parse_result.update({mem_name: {'pic_href': obj_mem_picture.img['src'],
-                                                         'describe': obj_mem_describe.p.text.replace('\xa0',
-                                                                                                     ' ')
-                                                         if '\xa0' in obj_mem_describe.p.text
-                                                         else obj_mem_describe.p.text}})
+                                        'describe': obj_mem_describe.p.text.replace('\xa0', ' ')
+                                        if '\xa0' in obj_mem_describe.p.text
+                                        else obj_mem_describe.p.text,
+                                        'meme_href': url}})
     except AttributeError:
         obj_mem_picture = soup_mem.find('div', attrs={'class': 'bb-media-placeholder'})
         parse_result.update({mem_name: {'pic_href': obj_mem_picture.img['src'],
-                                                         'describe': obj_mem_describe.p.text.replace('\xa0',
-                                                                                                     ' ')
-                                                         if '\xa0' in obj_mem_describe.p.text
-                                                         else obj_mem_describe.p.text}})
+                                        'describe': obj_mem_describe.p.text.replace('\xa0', ' ')
+                                        if '\xa0' in obj_mem_describe.p.text
+                                        else obj_mem_describe.p.text,
+                                        'meme_href': url}})
     return parse_result
 
 

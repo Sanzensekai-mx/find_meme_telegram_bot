@@ -1,6 +1,6 @@
 import os
 import json
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from handlers.users.search import result_mem_search_by_page, keyboards, all_result_messages
 from states.search_states import Search
 from loader import dp, bot
@@ -30,6 +30,21 @@ class PageCounter:
 current_page = PageCounter()
 
 
+async def open_choice_meme(current_call, meme_data, meme_id):
+    detailed_inline_kb = InlineKeyboardMarkup().add(
+        InlineKeyboardButton('Подробнее',
+                             url= meme_data[result_mem_search_by_page[current_page.value][meme_id]]
+                             ['meme_href']
+                             ))
+    await bot.send_photo(
+        chat_id=current_call.from_user.id,
+        photo=meme_data[result_mem_search_by_page[current_page.value][meme_id]]
+        ['pic_href'])
+    await current_call.message.answer(
+        meme_data[result_mem_search_by_page[current_page.value][meme_id]]
+        ['describe'], reply_markup=detailed_inline_kb)
+
+
 # Заработало, надо было добавить state
 # @dp.callback_query_handler(lambda c: c.data == 'next page', state=Search.search_input_key_words)
 @dp.callback_query_handler(text_contains='res',
@@ -38,25 +53,37 @@ async def process_callback_res_num_button(call: CallbackQuery):
     await call.answer(cache_time=60)
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
             as dataset:
-        mem_data = json.load(dataset)
-        mem_id = call.data.split(':')[1]
+        data = json.load(dataset)
+        cur_id = call.data.split(':')[1]
         try:
-            await bot.send_photo(
-                chat_id=call.from_user.id,
-                photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-                ['pic_href'])
-            await call.message.answer(
-                mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-                ['describe'])
+            await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
+            # detailed_inline_kb = InlineKeyboardMarkup().add(
+            #     InlineKeyboardButton('Подробнее',
+            #                          url=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
+            #                          ['meme_href']
+            #                          ))
+            # await bot.send_photo(
+            #     chat_id=call.from_user.id,
+            #     photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
+            #     ['pic_href'])
+            # await call.message.answer(
+            #     mem_data[result_mem_search_by_page[current_page.value][mem_id]]
+            #     ['describe'], reply_markup=detailed_inline_kb)
         except KeyError:
             current_page.set_first()
-            await bot.send_photo(
-                chat_id=call.from_user.id,
-                photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-                ['pic_href'])
-            await call.message.answer(
-                mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-                ['describe'])
+            await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
+            # detailed_inline_kb = InlineKeyboardMarkup().add(
+            #     InlineKeyboardButton('Подробнее',
+            #                          url=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
+            #                          ['meme_href']
+            #                          ))
+            # await bot.send_photo(
+            #     chat_id=call.from_user.id,
+            #     photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
+            #     ['pic_href'])
+            # await call.message.answer(
+            #     mem_data[result_mem_search_by_page[current_page.value][mem_id]]
+            #     ['describe'], reply_markup=detailed_inline_kb)
 
 
 # Этот хэндлер должен как то еще выводить результат поиска
