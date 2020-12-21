@@ -57,33 +57,9 @@ async def process_callback_res_num_button(call: CallbackQuery):
         cur_id = call.data.split(':')[1]
         try:
             await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
-            # detailed_inline_kb = InlineKeyboardMarkup().add(
-            #     InlineKeyboardButton('Подробнее',
-            #                          url=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-            #                          ['meme_href']
-            #                          ))
-            # await bot.send_photo(
-            #     chat_id=call.from_user.id,
-            #     photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-            #     ['pic_href'])
-            # await call.message.answer(
-            #     mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-            #     ['describe'], reply_markup=detailed_inline_kb)
         except KeyError:
             current_page.set_first()
             await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
-            # detailed_inline_kb = InlineKeyboardMarkup().add(
-            #     InlineKeyboardButton('Подробнее',
-            #                          url=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-            #                          ['meme_href']
-            #                          ))
-            # await bot.send_photo(
-            #     chat_id=call.from_user.id,
-            #     photo=mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-            #     ['pic_href'])
-            # await call.message.answer(
-            #     mem_data[result_mem_search_by_page[current_page.value][mem_id]]
-            #     ['describe'], reply_markup=detailed_inline_kb)
 
 
 # Этот хэндлер должен как то еще выводить результат поиска
