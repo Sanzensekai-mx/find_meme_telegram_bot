@@ -1,5 +1,5 @@
 from aiogram import types
-from keyboards.default import search
+from keyboards.default import main_menu
 from aiogram.dispatcher.filters import CommandStart, Text
 from aiogram.types import Message, ReplyKeyboardRemove
 from states.search_states import Search
@@ -13,4 +13,4 @@ async def bot_start(message: types.Message):
 Привет, {message.from_user.full_name}!
 Этот бот поможет тебе найти пояснение к мему!
 ''')
-    await message.answer('Нажми кнопку ниже для того, чтобы начать!', reply_markup=search)
+    await message.answer('Нажми кнопку ниже для того, чтобы начать!', reply_markup=main_menu)
