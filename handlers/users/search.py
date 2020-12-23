@@ -5,7 +5,7 @@ import numpy as np
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.dispatcher import FSMContext
-from keyboards.default import main_menu, cancel
+from keyboards.default import main_menu, cancel_search
 from states.search_states import Search
 from loader import dp
 
@@ -45,11 +45,6 @@ async def wait_for_mem_request(message: Message):
                          reply_markup=ReplyKeyboardRemove())
 
 
-@dp.message_handler(Text(equals=['10 рандомных мемов']))
-async def start_ten_random_memes(message: Message):
-    await message.answer('Скоро заработает)')
-
-
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
     # global_page.set_first()
@@ -62,7 +57,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
     # if message.text not in ['Отмена', 'Результаты последнего поиска']:
     else:
         global_page.set_first()
-        await message.answer('Результат поиска:', reply_markup=cancel)
+        await message.answer('Результат поиска:', reply_markup=cancel_search)
         with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
                 as dataset:
             mem_data = json.load(dataset)
