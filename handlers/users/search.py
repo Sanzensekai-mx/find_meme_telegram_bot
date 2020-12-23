@@ -14,6 +14,30 @@ result_mem_search_by_page = {}
 all_result_messages = {}
 
 
+class PageCounter:
+
+    def __init__(self):
+        self._value = 1
+
+    def next_page(self):
+        self._value += 1
+        return self._value
+
+    def previous_page(self):
+        self._value -= 1
+        return self._value
+
+    def set_first(self):
+        self._value = 1
+
+    @property
+    def value(self):
+        return self._value
+
+
+global_page = PageCounter()
+
+
 @dp.message_handler(Text(equals=['Начать поиск мема', 'Искать новый мем']))
 async def wait_for_mem_request(message: Message):
     await Search.search_input_key_words.set()
@@ -23,6 +47,7 @@ async def wait_for_mem_request(message: Message):
 
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
+    global_page.set_first()
     if message.text == 'Отмена':
         await state.finish()
         await message.answer('Отмена.', reply_markup=search)
@@ -98,5 +123,5 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_message += f'Страница {page_num} из {number_of_pages}'  # current_page
                 all_result_messages.update({page_num: result_message})
             keyboards.update(keyboards_inside)
-            await message.answer(all_result_messages[1],
-                                 reply_markup=keyboards[1])  # С первой страницы
+            await message.answer(all_result_messages[global_page.value],
+                                 reply_markup=keyboards[global_page.value])  # С первой страницы
