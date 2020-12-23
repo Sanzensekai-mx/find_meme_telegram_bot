@@ -5,5 +5,8 @@ cancel = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Отмена"),
         ],
+        [
+            KeyboardButton(text="Результаты последнего поиска")
+        ],
     ],
     resize_keyboard=True)
