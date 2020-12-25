@@ -1,5 +1,7 @@
 import os
 import json
+from .ten_random_memes import process_random_memes
+from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from handlers.users.search import result_mem_search_by_page, keyboards, all_result_messages, global_page
 from states.search_states import Search
@@ -30,26 +32,37 @@ async def action_process_callback(call):
         await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
 
 
+# search
 @dp.callback_query_handler(text_contains='res',
                            state=Search.search_input_key_words)
 async def process_callback_res_num_button(callback: CallbackQuery):
     await action_process_callback(callback)
 
 
+# ten random memes
 @dp.callback_query_handler(text_contains='res', state=Search.ten_random_memes)
 async def process_callback_res_num_button(callback: CallbackQuery):
     await action_process_callback(callback)
 
 
+# search
 # Этот хэндлер должен как то еще выводить результат поиска
 @dp.callback_query_handler(text_contains='page', state=Search.search_input_key_words)
-async def process_callback_page_button(call: CallbackQuery):
-    await call.answer(cache_time=60)
-    if call.data == 'next_page':
+async def process_callback_page_button(callback: CallbackQuery):
+    await callback.answer(cache_time=60)
+    if callback.data == 'next_page':
         global_page.next_page()
-        await call.message.answer(all_result_messages[global_page.value],
-                                  reply_markup=keyboards[global_page.value])
-    elif call.data == 'previous_page':
+        await callback.message.answer(all_result_messages[global_page.value],
+                                      reply_markup=keyboards[global_page.value])
+    elif callback.data == 'previous_page':
         global_page.previous_page()
-        await call.message.answer(all_result_messages[global_page.value],
-                                  reply_markup=keyboards[global_page.value])
+        await callback.message.answer(all_result_messages[global_page.value],
+                                      reply_markup=keyboards[global_page.value])
+
+
+# ten random memes
+@dp.callback_query_handler(text_contains='new_random', state=Search.ten_random_memes)
+async def process_callback_new_random(callback: CallbackQuery, state: FSMContext):
+    await callback.answer(cache_time=60)
+    await state.finish()
+    await process_random_memes(call=callback)

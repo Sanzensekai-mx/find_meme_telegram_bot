@@ -10,10 +10,13 @@ from loader import dp
 from states.search_states import Search
 
 
-@dp.message_handler(Text(equals=['10 рандомных мемов']))
-async def start_ten_random_memes(message: Message):
+# функция используется в разных хэндлерах, поэтому предлагается такое решение
+# Если функция выполняется в message_handler --> руками задаем агумент mes, call не трогаем
+# Если функция выполняется в callback_handler --> прописываем наоборот call, mes не трогаем
+async def process_random_memes(mes=None, call=None):
     await Search.ten_random_memes.set()
-    await message.answer('Ваши рандомные мемы, сэр', reply_markup=cancel_ten_random)
+    await mes.answer('Ваши рандомные мемы, сэр', reply_markup=cancel_ten_random) if mes is not None \
+        else await call.message.answer('Ваши рандомные мемы, сэр', reply_markup=cancel_ten_random)
     global_page.set_first()
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
             as dataset:
@@ -30,9 +33,16 @@ async def start_ten_random_memes(message: Message):
             result_mem_search_by_page[1].update({str(num): res})
             result_kb.insert(res_button)
             result_message += f'{num}. {res}\n\n'
+        result_kb.add(InlineKeyboardButton('Еще 10 мемов', callback_data='new_random'))
         keyboards.update({1: result_kb})
         all_result_messages.update({1: result_message})
-        await message.answer(text=result_message, reply_markup=result_kb)
+        await mes.answer(text=result_message, reply_markup=result_kb) if mes is not None \
+            else await call.message.answer(text=result_message, reply_markup=result_kb)
+
+
+@dp.message_handler(Text(equals=['10 рандомных мемов']))
+async def start_ten_random_memes(message: Message):
+    await process_random_memes(mes=message)
 
 
 @dp.message_handler(Text(equals=['Отмена', 'Показать результаты рандома']), state=Search.ten_random_memes)
