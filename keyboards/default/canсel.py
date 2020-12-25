@@ -6,7 +6,7 @@ cancel_search = ReplyKeyboardMarkup(
             KeyboardButton(text="Отмена"),
         ],
         [
-            KeyboardButton(text="Результаты последнего поиска")
+            KeyboardButton(text="Показать результаты поиска")
         ],
     ],
     resize_keyboard=True)
@@ -16,5 +16,8 @@ cancel_ten_random = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="Отмена")
         ],
+        [
+            KeyboardButton(text="Показать результаты рандома")
+        ]
     ],
     resize_keyboard=True)

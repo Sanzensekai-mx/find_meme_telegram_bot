@@ -38,7 +38,7 @@ class PageCounter:
 global_page = PageCounter()
 
 
-@dp.message_handler(Text(equals=['Начать поиск мема', 'Искать новый мем']))
+@dp.message_handler(Text(equals=['Начать поиск мема']))
 async def wait_for_mem_request(message: Message):
     await Search.search_input_key_words.set()
     await message.answer('Введите ключевые слова для поиска мема в базе',
@@ -48,12 +48,12 @@ async def wait_for_mem_request(message: Message):
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
     # global_page.set_first()
-    if message.text == 'Результаты последнего поиска':
+    if message.text == 'Показать результаты поиска':
         await message.answer(all_result_messages[global_page.value],
                              reply_markup=keyboards[global_page.value])
     elif message.text == 'Отмена':
         await state.finish()
-        await message.answer('Отмена.', reply_markup=main_menu)
+        await message.answer('Отменено', reply_markup=main_menu)
     # if message.text not in ['Отмена', 'Результаты последнего поиска']:
     else:
         global_page.set_first()

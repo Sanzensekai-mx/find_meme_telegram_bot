@@ -21,19 +21,24 @@ async def open_choice_meme(current_call, meme_data, meme_id):
         ['describe'], reply_markup=detailed_inline_kb)
 
 
-@dp.callback_query_handler(text_contains='res',
-                           state=Search.search_input_key_words)
-async def process_callback_res_num_button(call: CallbackQuery):
+async def action_process_callback(call):
     await call.answer(cache_time=60)
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
             as dataset:
         data = json.load(dataset)
         cur_id = call.data.split(':')[1]
-        # try:
         await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
-        # except KeyError:
-        #     page.set_first()
-        #     await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id)
+
+
+@dp.callback_query_handler(text_contains='res',
+                           state=Search.search_input_key_words)
+async def process_callback_res_num_button(callback: CallbackQuery):
+    await action_process_callback(callback)
+
+
+@dp.callback_query_handler(text_contains='res', state=Search.ten_random_memes)
+async def process_callback_res_num_button(callback: CallbackQuery):
+    await action_process_callback(callback)
 
 
 # Этот хэндлер должен как то еще выводить результат поиска
