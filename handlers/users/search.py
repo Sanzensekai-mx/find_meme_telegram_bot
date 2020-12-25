@@ -57,7 +57,6 @@ async def search_and_show_results(message: Message, state: FSMContext):
     # if message.text not in ['Отмена', 'Результаты последнего поиска']:
     else:
         global_page.set_first()
-        await message.answer('Результат поиска:', reply_markup=cancel_search)
         with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
                 as dataset:
             mem_data = json.load(dataset)
@@ -70,7 +69,9 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_match_one_word.update(set(list(filter(
                     lambda mem: word.title() in mem, mem_data.keys()))))
                 result_search.update(result_match_one_word)
-            if len(result_search) <= 10:
+            if len(result_search) == 0:
+                await message.answer('Ничего не найдено по запросу. Попробуй еще раз.', reply_markup=cancel_search)
+            elif len(result_search) <= 10:
                 # keyboards.clear()
                 result_mem_search_by_page.clear()
                 # keyboards = {}
@@ -132,5 +133,6 @@ async def search_and_show_results(message: Message, state: FSMContext):
                     result_message += f'Страница {page_num} из {number_of_pages}'  # current_page
                     all_result_messages.update({page_num: result_message})
                 keyboards.update(keyboards_inside)
+                await message.answer('Результат поиска:', reply_markup=cancel_search)
                 await message.answer(all_result_messages[global_page.value],
                                      reply_markup=keyboards[global_page.value])  # С первой страницы
