@@ -58,11 +58,14 @@ def search(msg, dataset):
         result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
         return result_match_one_word
     else:
-        # result_match_one_word = set()
         result_process = process.extract(''.join(process_msg), data_list, limit=len(data_list))
         print([res for res in result_process if res[1] >= 70])
-        result_match_one_word = set([res[0] for res in result_process if res[1] >= 70])
+        result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
         return result_match_one_word
+
+
+
+    # STAROE
     # for word in str(msg.text).split():
     #     result_match_one_word.update(set(list(filter(
     #         lambda mem: word.lower() in mem, dataset.keys()))))
