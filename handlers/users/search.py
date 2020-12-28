@@ -61,7 +61,7 @@ def search(msg, dataset):
         result = list(set(first_letters_msg) & set(first_letters_mem))
         # result_fuzz = (fuzz.WRatio(process_msg_use, mem) + fuzz.partial_ratio(process_msg_use, mem)) / 2
         result_fuzz = fuzz.WRatio(process_msg_use, mem)
-        if result_fuzz > 50 and result:
+        if result_fuzz > 65 and result:
             set_of_memes.update({(mem, result_fuzz)})
             list_of_memes.append((mem, result_fuzz))
     set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
