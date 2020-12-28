@@ -61,18 +61,20 @@ def search(msg, dataset):
         result = list(set(first_letters_msg) & set(first_letters_mem))
         # result_fuzz = (fuzz.WRatio(process_msg_use, mem) + fuzz.partial_ratio(process_msg_use, mem)) / 2
         result_fuzz = fuzz.WRatio(process_msg_use, mem)
-        if result_fuzz > 65 and result:
+        if result_fuzz > 60 and result:
             set_of_memes.update({(mem, result_fuzz)})
             list_of_memes.append((mem, result_fuzz))
-    set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
-        lambda memes: word.lower() in memes, dataset.keys()
-    )})
-    set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem))for mem in filter(
-        lambda memes: word.title() in memes, dataset.keys()
-    )})
+    for word in process_msg:
+        set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
+            lambda memes: word.lower() in memes, dataset.keys()
+        )})
+        set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
+            lambda memes: word.title() in memes, dataset.keys()
+        )})
     # print(set_of_memes)
-    # print(sorted(list(set_of_memes), key=lambda x: x[1], reverse=True))
-    return [res[0] for res in sorted(list(set_of_memes[:31]), key=lambda x: x[1], reverse=True)]
+    list_of_memes = [mem for mem in set_of_memes if mem[1] > 60]
+    print(sorted(list_of_memes, key=lambda x: x[1], reverse=True))
+    return [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
