@@ -1,4 +1,5 @@
 import json
+import operator
 import os
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
@@ -41,7 +42,7 @@ class PageCounter:
 global_page = PageCounter()
 
 stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', 'из-за', 'к', 'ко', 'на', 'о', 'об', 'от', 'по', 'при',
-                  'про', 'у', 'at', 'in', 'of', 'to', 'as', 'со', 'с']
+                  'про', 'у', 'at', 'in', 'of', 'to', 'as', 'со', 'с', 'и']
 
 
 def search(msg, dataset):
@@ -49,20 +50,25 @@ def search(msg, dataset):
     # result_match_one_word = set()
     data_list = list(dataset.keys())
     process_msg = msg.text.split()
-    for word in process_msg:
-        if word in stop_word_list:
-            process_msg.remove(word)
-    process_msg = ''.join(process_msg)
+    # Одинаковый код в условиях засунуть в функцию
+    if len(process_msg) == 1:
+        process_msg = ''.join(process_msg)
+        result_process = process.extract(process_msg, data_list, limit=len(data_list))
+        print([res for res in result_process if res[1] >= 70])
+        result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
+        return result_match_one_word
+    else:
+        # result_match_one_word = set()
+        result_process = process.extract(''.join(process_msg), data_list, limit=len(data_list))
+        print([res for res in result_process if res[1] >= 70])
+        result_match_one_word = set([res[0] for res in result_process if res[1] >= 70])
+        return result_match_one_word
     # for word in str(msg.text).split():
     #     result_match_one_word.update(set(list(filter(
     #         lambda mem: word.lower() in mem, dataset.keys()))))
     #     result_match_one_word.update(set(list(filter(
     #         lambda mem: word.title() in mem, dataset.keys()))))
-    result_process = process.extract(process_msg, data_list, limit=len(data_list))
-    print([res for res in result_process if res[1] >= 70])
-    result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
     # result_match_one_word.update(set([res[0] for res in result_process if res[1] >= 70]))
-    return result_match_one_word  # Должен вернуть set
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
@@ -97,7 +103,9 @@ async def search_and_show_results(message: Message, state: FSMContext):
             #     result_search.update(result_match_one_word)
             result_search = search(msg=message, dataset=mem_data)
             if len(result_search) == 0:
-                await message.answer('Ничего не найдено по запросу. Попробуй еще раз.', reply_markup=cancel_search)
+                await message.answer('Ничего не найдено по запросу. '
+                                     'Попробуй написать еще раз свой запрос, но другими словами.',
+                                     reply_markup=cancel_search)
             elif len(result_search) <= 10:
                 # keyboards.clear()
                 result_mem_search_by_page.clear()
