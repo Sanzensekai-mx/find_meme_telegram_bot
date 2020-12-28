@@ -1,5 +1,4 @@
 import json
-import re
 import os
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
@@ -48,7 +47,7 @@ stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', '�
 def search(msg, dataset):
     process_msg = [word for word in msg.text.split()]
     for word in process_msg:
-        print(word)
+        # print(word)
         if word in stop_word_list:
             process_msg.remove(word)
     first_letters_msg = [word[:2].lower() for word in process_msg]
@@ -73,7 +72,7 @@ def search(msg, dataset):
     )})
     # print(set_of_memes)
     # print(sorted(list(set_of_memes), key=lambda x: x[1], reverse=True))
-    return [res[0] for res in sorted(list(set_of_memes), key=lambda x: x[1], reverse=True)]
+    return [res[0] for res in sorted(list(set_of_memes[:31]), key=lambda x: x[1], reverse=True)]
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
