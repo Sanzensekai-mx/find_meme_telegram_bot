@@ -46,32 +46,14 @@ stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', '�
 
 
 def search(msg, dataset):
-    # number_of_words = len(msg.text.split())
-    # result_match_one_word = set()
     data_list = list(dataset.keys())
-    process_msg = msg.text.split()
-    # Одинаковый код в условиях засунуть в функцию
-    if len(process_msg) == 1:
-        process_msg = ''.join(process_msg)
-        result_process = process.extract(process_msg, data_list, limit=len(data_list))
-        print([res for res in result_process if res[1] >= 70])
-        result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
-        return result_match_one_word
-    else:
-        result_process = process.extract(''.join(process_msg), data_list, limit=len(data_list))
-        print([res for res in result_process if res[1] >= 70])
-        result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
-        return result_match_one_word
-
-
-
-    # STAROE
-    # for word in str(msg.text).split():
-    #     result_match_one_word.update(set(list(filter(
-    #         lambda mem: word.lower() in mem, dataset.keys()))))
-    #     result_match_one_word.update(set(list(filter(
-    #         lambda mem: word.title() in mem, dataset.keys()))))
-    # result_match_one_word.update(set([res[0] for res in result_process if res[1] >= 70]))
+    list_of_memes = []
+    for mem in data_list:
+        result_fuzz = fuzz.WRatio(msg.text, mem)
+        if result_fuzz > 65:
+            list_of_memes.append((mem, result_fuzz))
+    print(sorted(list_of_memes, key=lambda x: x[1], reverse=True))
+    return [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
@@ -109,7 +91,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 await message.answer('Ничего не найдено по запросу. '
                                      'Попробуй написать еще раз свой запрос, но другими словами.',
                                      reply_markup=cancel_search)
-            elif len(result_search) <= 10:
+            elif len(result_search) <= 5:
                 # keyboards.clear()
                 result_mem_search_by_page.clear()
                 # keyboards = {}
@@ -126,15 +108,15 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 await message.answer('Результат поиска:', reply_markup=cancel_search)
                 await message.answer(all_result_messages[global_page.value],
                                      reply_markup=keyboards[global_page.value])
-            elif len(result_search) > 10:
+            elif len(result_search) > 5:
                 result_mem_search_by_page.clear()
-                number_of_pages = ceil(len(result_search) / 10)
+                number_of_pages = ceil(len(result_search) / 5)
                 rule_np_list = []
                 for i in range(number_of_pages):
                     if i == 0:
-                        rule_np_list.append(10)
+                        rule_np_list.append(5)
                         continue
-                    rule_np_list.append(rule_np_list[i - 1] + 10)
+                    rule_np_list.append(rule_np_list[i - 1] + 5)
                 search_results_by_pages = np.array_split(result_search, rule_np_list)
                 # Клавиатура для каждой страницы
                 keyboards_inside = {}
