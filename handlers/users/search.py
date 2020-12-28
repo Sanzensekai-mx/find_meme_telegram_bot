@@ -86,6 +86,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                     result_message += f'{num}. {res}\n\n'
                 keyboards.update({1: result_kb})
                 all_result_messages.update({1: result_message})
+                await message.answer('Результат поиска:', reply_markup=cancel_search)
                 await message.answer(all_result_messages[global_page.value],
                                      reply_markup=keyboards[global_page.value])
             elif len(result_search) > 10:
