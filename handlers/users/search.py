@@ -1,5 +1,5 @@
 import json
-import operator
+import re
 import os
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
@@ -46,14 +46,34 @@ stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', '�
 
 
 def search(msg, dataset):
+    process_msg = [word for word in msg.text.split()]
+    for word in process_msg:
+        print(word)
+        if word in stop_word_list:
+            process_msg.remove(word)
+    first_letters_msg = [word[:2].lower() for word in process_msg]
+    process_msg_use = ''.join(process_msg)
     data_list = list(dataset.keys())
     list_of_memes = []
+    set_of_memes = set()
     for mem in data_list:
-        result_fuzz = fuzz.WRatio(msg.text, mem)
-        if result_fuzz > 65:
+        process_mem = mem.split()
+        first_letters_mem = [word[:2].lower() for word in process_mem]
+        result = list(set(first_letters_msg) & set(first_letters_mem))
+        # result_fuzz = (fuzz.WRatio(process_msg_use, mem) + fuzz.partial_ratio(process_msg_use, mem)) / 2
+        result_fuzz = fuzz.WRatio(process_msg_use, mem)
+        if result_fuzz > 50 and result:
+            set_of_memes.update({(mem, result_fuzz)})
             list_of_memes.append((mem, result_fuzz))
-    print(sorted(list_of_memes, key=lambda x: x[1], reverse=True))
-    return [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
+    set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
+        lambda memes: word.lower() in memes, dataset.keys()
+    )})
+    set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem))for mem in filter(
+        lambda memes: word.title() in memes, dataset.keys()
+    )})
+    # print(set_of_memes)
+    # print(sorted(list(set_of_memes), key=lambda x: x[1], reverse=True))
+    return [res[0] for res in sorted(list(set_of_memes), key=lambda x: x[1], reverse=True)]
 
 
 @dp.message_handler(Text(equals=['Начать поиск мема']))
