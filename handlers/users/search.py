@@ -38,6 +38,19 @@ class PageCounter:
 global_page = PageCounter()
 
 
+def search(msg, dataset):
+    result_match_one_word = set()
+    # process_msg = msg.text
+    # for char in msg.text:
+    # if char in [.,:;]
+    for word in str(msg.text).split():
+        result_match_one_word.update(set(list(filter(
+            lambda mem: word.lower() in mem, dataset.keys()))))
+        result_match_one_word.update(set(list(filter(
+            lambda mem: word.title() in mem, dataset.keys()))))
+    return result_match_one_word  # Должен вернуть set
+
+
 @dp.message_handler(Text(equals=['Начать поиск мема']))
 async def wait_for_mem_request(message: Message):
     await Search.search_input_key_words.set()
@@ -54,7 +67,6 @@ async def search_and_show_results(message: Message, state: FSMContext):
     elif message.text == 'Отмена':
         await state.finish()
         await message.answer('Отменено', reply_markup=main_menu)
-    # if message.text not in ['Отмена', 'Результаты последнего поиска']:
     else:
         global_page.set_first()
         with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
@@ -62,13 +74,14 @@ async def search_and_show_results(message: Message, state: FSMContext):
             mem_data = json.load(dataset)
             result_search = set()
             # Все это дело поисковое, засунуть в отдельную функцию
-            for word in str(message.text).split():  # Примитивнейший механизм поиска даже стыдно немного
-                result_match_one_word = set()
-                result_match_one_word.update(set(list(filter(
-                    lambda mem: word.lower() in mem, mem_data.keys()))))
-                result_match_one_word.update(set(list(filter(
-                    lambda mem: word.title() in mem, mem_data.keys()))))
-                result_search.update(result_match_one_word)
+            # for word in str(message.text).split():  # Примитивнейший механизм поиска даже стыдно немного
+            #     result_match_one_word = set()
+            #     result_match_one_word.update(set(list(filter(
+            #         lambda mem: word.lower() in mem, mem_data.keys()))))
+            #     result_match_one_word.update(set(list(filter(
+            #         lambda mem: word.title() in mem, mem_data.keys()))))
+            #     result_search.update(result_match_one_word)
+            result_search.update(search(msg=message, dataset=mem_data))
             if len(result_search) == 0:
                 await message.answer('Ничего не найдено по запросу. Попробуй еще раз.', reply_markup=cancel_search)
             elif len(result_search) <= 10:
@@ -105,14 +118,14 @@ async def search_and_show_results(message: Message, state: FSMContext):
                     if page_num == 0:
                         keyboards_inside.update(
                             {page_num + 1: InlineKeyboardMarkup(row_width=5, inline_keyboard=[
-                                         [InlineKeyboardButton('➡️', callback_data='next_page')]]
-                                                            )})
+                                [InlineKeyboardButton('➡️', callback_data='next_page')]]
+                                                                )})
                         continue
                     if page_num == list(range(number_of_pages))[-1]:
                         keyboards_inside.update(
                             {page_num + 1: InlineKeyboardMarkup(row_width=5, inline_keyboard=[
-                                         [InlineKeyboardButton('⬅️', callback_data='previous_page')]]
-                            )})
+                                [InlineKeyboardButton('⬅️', callback_data='previous_page')]]
+                                                                )})
                         continue
                     keyboards_inside.update({page_num + 1: InlineKeyboardMarkup(row_width=5, inline_keyboard=[
                         [InlineKeyboardButton('⬅️', callback_data='previous_page')],
