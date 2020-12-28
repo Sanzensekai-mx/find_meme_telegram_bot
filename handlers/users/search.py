@@ -73,7 +73,7 @@ def search(msg, dataset):
         )})
     # print(set_of_memes)
     list_of_memes = [mem for mem in set_of_memes if mem[1] > 60]
-    print(sorted(list_of_memes, key=lambda x: x[1], reverse=True))
+    # print(sorted(list_of_memes, key=lambda x: x[1], reverse=True))
     return [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
 
 
@@ -87,6 +87,8 @@ async def wait_for_mem_request(message: Message):
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
     # global_page.set_first()
+    # LOG you
+    print({'from': message.chat.first_name, 'text': message.text})
     if message.text == 'Показать результаты поиска':
         await message.answer(all_result_messages[global_page.value],
                              reply_markup=keyboards[global_page.value])
