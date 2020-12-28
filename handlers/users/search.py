@@ -40,23 +40,28 @@ class PageCounter:
 
 global_page = PageCounter()
 
+stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', 'из-за', 'к', 'ко', 'на', 'о', 'об', 'от', 'по', 'при',
+                  'про', 'у', 'at', 'in', 'of', 'to', 'as', 'со', 'с']
+
 
 def search(msg, dataset):
     # number_of_words = len(msg.text.split())
-    result_match_one_word = set()
+    # result_match_one_word = set()
     data_list = list(dataset.keys())
-    # process_msg = msg.text.lower()
-    # for char in msg.text:
-    #     if char in ['.,:;\'\"']:
-    #         del process_msg[msg.text.index(char)]
+    process_msg = msg.text.split()
+    for word in process_msg:
+        if word in stop_word_list:
+            process_msg.remove(word)
+    process_msg = ''.join(process_msg)
     # for word in str(msg.text).split():
     #     result_match_one_word.update(set(list(filter(
     #         lambda mem: word.lower() in mem, dataset.keys()))))
     #     result_match_one_word.update(set(list(filter(
     #         lambda mem: word.title() in mem, dataset.keys()))))
-    result_process = process.extract(msg.text, data_list, limit=len(data_list))
+    result_process = process.extract(process_msg, data_list, limit=len(data_list))
     print([res for res in result_process if res[1] >= 70])
-    result_match_one_word.update(set([res[0] for res in result_process if res[1] >= 70]))
+    result_match_one_word = [res[0] for res in result_process if res[1] >= 70]
+    # result_match_one_word.update(set([res[0] for res in result_process if res[1] >= 70]))
     return result_match_one_word  # Должен вернуть set
 
 
@@ -81,7 +86,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
         with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
                 as dataset:
             mem_data = json.load(dataset)
-            result_search = set()
+            # result_search = set()
             # Все это дело поисковое, засунуть в отдельную функцию
             # for word in str(message.text).split():
             #     result_match_one_word = set()
@@ -90,7 +95,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
             #     result_match_one_word.update(set(list(filter(
             #         lambda mem: word.title() in mem, mem_data.keys()))))
             #     result_search.update(result_match_one_word)
-            result_search.update(search(msg=message, dataset=mem_data))
+            result_search = search(msg=message, dataset=mem_data)
             if len(result_search) == 0:
                 await message.answer('Ничего не найдено по запросу. Попробуй еще раз.', reply_markup=cancel_search)
             elif len(result_search) <= 10:
@@ -100,7 +105,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 result_kb = InlineKeyboardMarkup(row_width=5)
                 result_message = ''
                 result_mem_search_by_page.update({1: {}})
-                for num, res in enumerate(list(result_search), 1):
+                for num, res in enumerate(result_search, 1):
                     res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
                     result_mem_search_by_page[1].update({str(num): res})
                     result_kb.insert(res_button)
@@ -119,7 +124,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                         rule_np_list.append(10)
                         continue
                     rule_np_list.append(rule_np_list[i - 1] + 10)
-                search_results_by_pages = np.array_split(list(result_search), rule_np_list)
+                search_results_by_pages = np.array_split(result_search, rule_np_list)
                 # Клавиатура для каждой страницы
                 keyboards_inside = {}
                 for page_num in range(number_of_pages):
