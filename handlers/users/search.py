@@ -1,13 +1,16 @@
-import os
 import json
+import os
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 from math import ceil
 import numpy as np
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.dispatcher import FSMContext
+
 from keyboards.default import main_menu, cancel_search
-from states.search_states import Search
 from loader import dp
+from states.search_states import Search
 
 keyboards = {}
 result_mem_search_by_page = {}
@@ -39,15 +42,21 @@ global_page = PageCounter()
 
 
 def search(msg, dataset):
+    # number_of_words = len(msg.text.split())
     result_match_one_word = set()
-    # process_msg = msg.text
+    data_list = list(dataset.keys())
+    # process_msg = msg.text.lower()
     # for char in msg.text:
-    # if char in [.,:;]
-    for word in str(msg.text).split():
-        result_match_one_word.update(set(list(filter(
-            lambda mem: word.lower() in mem, dataset.keys()))))
-        result_match_one_word.update(set(list(filter(
-            lambda mem: word.title() in mem, dataset.keys()))))
+    #     if char in ['.,:;\'\"']:
+    #         del process_msg[msg.text.index(char)]
+    # for word in str(msg.text).split():
+    #     result_match_one_word.update(set(list(filter(
+    #         lambda mem: word.lower() in mem, dataset.keys()))))
+    #     result_match_one_word.update(set(list(filter(
+    #         lambda mem: word.title() in mem, dataset.keys()))))
+    result_process = process.extract(msg.text, data_list, limit=len(data_list))
+    print([res for res in result_process if res[1] >= 70])
+    result_match_one_word.update(set([res[0] for res in result_process if res[1] >= 70]))
     return result_match_one_word  # Должен вернуть set
 
 
@@ -74,7 +83,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
             mem_data = json.load(dataset)
             result_search = set()
             # Все это дело поисковое, засунуть в отдельную функцию
-            # for word in str(message.text).split():  # Примитивнейший механизм поиска даже стыдно немного
+            # for word in str(message.text).split():
             #     result_match_one_word = set()
             #     result_match_one_word.update(set(list(filter(
             #         lambda mem: word.lower() in mem, mem_data.keys()))))
@@ -90,7 +99,6 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 # keyboards = {}
                 result_kb = InlineKeyboardMarkup(row_width=5)
                 result_message = ''
-                # result_kb.update({1: InlineKeyboardMarkup()})
                 result_mem_search_by_page.update({1: {}})
                 for num, res in enumerate(list(result_search), 1):
                     res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
