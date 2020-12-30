@@ -42,11 +42,17 @@ async def process_random_memes(mes=None, call=None):
 
 @dp.message_handler(Text(equals=['10 рандомных мемов']))
 async def start_ten_random_memes(message: Message):
+    # LOG you!!!!!!!
+    print({'from': message.chat.first_name, 'text': message.text})
+    # LOG you!!!!!!!
     await process_random_memes(mes=message)
 
 
 @dp.message_handler(Text(equals=['Отмена', 'Показать результаты рандома']), state=Search.ten_random_memes)
 async def process_random_menu(message: Message, state: FSMContext):
+    # LOG you!!!!!!!
+    print({'from': message.chat.first_name, 'text': message.text})
+    # LOG you!!!!!!!
     if message.text == 'Показать результаты рандома':
         await message.answer(all_result_messages[global_page.value],
                              reply_markup=keyboards[global_page.value])

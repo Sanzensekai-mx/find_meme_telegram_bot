@@ -77,8 +77,21 @@ def search(msg, dataset):
     return [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
 
 
+# @dp.message_handler(state='*')
+# async def cancel_menu_show(message: Message, state: FSMContext):
+#     if message.text == 'Показать результаты поиска':
+#         await message.answer(all_result_messages[global_page.value],
+#                              reply_markup=keyboards[global_page.value])
+#     elif message.text == 'Отмена':
+#         await state.finish()
+#         await message.answer('Отменено', reply_markup=main_menu)
+
+
 @dp.message_handler(Text(equals=['Начать поиск мема']))
 async def wait_for_mem_request(message: Message):
+    # LOG you!!!!!!!
+    print({'from': message.chat.first_name, 'text': message.text})
+    # LOG you!!!!!!!
     await Search.search_input_key_words.set()
     await message.answer('Введите ключевые слова для поиска мема в базе',
                          reply_markup=ReplyKeyboardRemove())
@@ -87,8 +100,9 @@ async def wait_for_mem_request(message: Message):
 @dp.message_handler(Text, state=Search.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
     # global_page.set_first()
-    # LOG you
+    # LOG you!!!!!!!
     print({'from': message.chat.first_name, 'text': message.text})
+    # LOG you!!!!!!!
     if message.text == 'Показать результаты поиска':
         await message.answer(all_result_messages[global_page.value],
                              reply_markup=keyboards[global_page.value])
