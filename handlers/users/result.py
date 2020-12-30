@@ -18,10 +18,11 @@ async def open_choice_meme(current_call, meme_data, meme_id, state):
                                  [meme_id]]
                                  ['meme_href']
                                  ))
+    # Придумать другую заглушку?
     except BadRequest:
-        await current_call.message.answer('Страница мема в интернете не найдена.')
+        await current_call.message.answer('Ссылки на страницу мема нет в базе.')
         # detailed_inline_kb = InlineKeyboardMarkup().add(
-            # InlineKeyboardButton('Недоступно'))
+        # InlineKeyboardButton('Недоступно'))
     try:
         await bot.send_photo(
             chat_id=current_call.from_user.id,
@@ -41,7 +42,7 @@ async def open_choice_meme(current_call, meme_data, meme_id, state):
                                           reply_markup=detailed_inline_kb)
     except Exception as e:
         print(e)
-        await current_call.message.answer('Мем не имеет страницы в интернете')
+        await current_call.message.answer('Ссылки на страницу мема нет в базе.')
 
 
 async def action_process_callback(call, state):
