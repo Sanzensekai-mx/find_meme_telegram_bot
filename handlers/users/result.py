@@ -57,7 +57,6 @@ async def action_process_callback(call, state):
 @dp.callback_query_handler(text_contains='res',
                            state=Search.search_input_key_words)
 async def process_callback_res_num_button(callback: CallbackQuery, state: FSMContext):
-    # data_from_state = await state.get_data()
     await action_process_callback(call=callback, state=state)
 
 
@@ -80,7 +79,7 @@ async def process_callback_page_button(callback: CallbackQuery, state: FSMContex
                                       reply_markup=data_from_state.get('keyboards')[data_from_state.get('page')])
     elif callback.data == 'previous_page':
         async with state.proxy() as data_from_state:
-            data_from_state['page'] += 1
+            data_from_state['page'] -= 1
         data_from_state = await state.get_data()
         await callback.message.answer(data_from_state.get('all_result_messages')[data_from_state.get('page')],
                                       reply_markup=data_from_state.get('keyboards')[data_from_state.get('page')])
