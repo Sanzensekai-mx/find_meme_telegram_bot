@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from math import ceil
@@ -44,7 +45,7 @@ stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', '�
                   'про', 'у', 'at', 'in', 'of', 'to', 'as', 'со', 'с', 'и']
 
 
-def search(msg, dataset):
+async def search(msg, dataset):
     process_msg = [word for word in msg.text.split()]
     for word in process_msg:
         # print(word)
@@ -61,7 +62,7 @@ def search(msg, dataset):
         result = list(set(first_letters_msg) & set(first_letters_mem))
         # result_fuzz = (fuzz.WRatio(process_msg_use, mem) + fuzz.partial_ratio(process_msg_use, mem)) / 2
         result_fuzz = fuzz.WRatio(process_msg_use, mem)
-        if result_fuzz > 60 and result:
+        if result_fuzz >= 60 and result:
             set_of_memes.update({(mem, result_fuzz)})
             list_of_memes.append((mem, result_fuzz))
     for word in process_msg:
@@ -71,10 +72,14 @@ def search(msg, dataset):
         set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
             lambda memes: word.title() in memes, dataset.keys()
         )})
+        # ????
+        set_of_memes.update({(mem, fuzz.WRatio(process_msg_use, mem)) for mem in filter(
+            lambda meme: True if re.match(rf'^.+({word}).+', meme) else False, dataset.keys())})
     # print(set_of_memes)
-    list_of_memes = [mem for mem in set_of_memes if mem[1] > 60]
+    list_of_memes = [mem for mem in set_of_memes if mem[1] >= 60]
     # print(sorted(list_of_memes, key=lambda x: x[1], reverse=True))
-    return [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
+    sorted_list_of_memes = [res[0] for res in sorted(list_of_memes, key=lambda x: x[1], reverse=True)]
+    return sorted_list_of_memes
 
 
 # @dp.message_handler(state='*')
@@ -123,7 +128,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
             #     result_match_one_word.update(set(list(filter(
             #         lambda mem: word.title() in mem, mem_data.keys()))))
             #     result_search.update(result_match_one_word)
-            result_search = search(msg=message, dataset=mem_data)
+            result_search = await search(msg=message, dataset=mem_data)
             if len(result_search) == 0:
                 await message.answer('Ничего не найдено по запросу. '
                                      'Попробуй написать еще раз свой запрос, но другими словами.',

@@ -59,13 +59,26 @@ def parse_one_mem(url):  # делаем парс парс по странице 
     return parse_result
 
 
-with open('mem_dataset.json', 'w', encoding='utf-8') as mem_data:
+with open('old_mem_dataset.json', 'w', encoding='utf-8') as old_meme, \
+        open('mem_dataset.json', 'r', encoding='utf-8') as now_old_meme:
+    current_old_memes = json.load(now_old_meme)
+    json.dump(current_old_memes, old_meme, indent=4, ensure_ascii=False)
+
+with open('mem_dataset.json', 'w', encoding='utf-8') as mem_data, \
+        open('old_mem_dataset.json', 'r', encoding='utf-8') as old_mem_data:
     add_to_file = {}
+    old_mem = json.load(old_mem_data)
     # i = 0
     for one_mem, mem_href in memes.items():
         # if i == 5:
         #     break
         one_mem = one_mem.replace('"', '')
+        if one_mem in old_mem.keys():
+            add_to_file.update({one_mem:
+                                    {'pic_href': old_mem[one_mem]['pic_href'],
+                                     'describe': old_mem[one_mem]['describe'],
+                                     'meme_href': old_mem[one_mem]['meme_href']}})
+            continue
         print(f'Парсится мем: {one_mem}')
         result_parse = parse_one_mem(mem_href)
         add_to_file.update(result_parse)
