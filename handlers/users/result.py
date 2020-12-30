@@ -19,7 +19,7 @@ async def open_choice_meme(current_call, meme_data, meme_id):
     except BadRequest:
         await current_call.message.answer('Страница мема в интернете не найдена.')
         # detailed_inline_kb = InlineKeyboardMarkup().add(
-        #     InlineKeyboardButton('Страница мема не найдена'))
+            # InlineKeyboardButton('Недоступно'))
     try:
         await bot.send_photo(
             chat_id=current_call.from_user.id,
@@ -35,7 +35,8 @@ async def open_choice_meme(current_call, meme_data, meme_id):
         await current_call.message.answer('Описание мема не найдено.')
     try:
         # Добавить вывод названия сайта по записи в json?
-        await current_call.message.answer('Нажми кнопку, чтобы открыть странцу мема в источнике на memepedia.ru', reply_markup=detailed_inline_kb)
+        await current_call.message.answer('Нажми кнопку, чтобы открыть странцу мема в источнике на memepedia.ru',
+                                          reply_markup=detailed_inline_kb)
     except Exception as e:
         print(e)
         await current_call.message.answer('Мем не имеет страницы в интернете')
