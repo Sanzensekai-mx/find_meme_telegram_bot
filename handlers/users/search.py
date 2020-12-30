@@ -13,33 +13,6 @@ from keyboards.default import main_menu, cancel_search
 from loader import dp
 from states.search_states import Search
 
-# keyboards = {}
-# result_mem_search_by_page = {}
-# all_result_messages = {}
-
-
-class PageCounter:
-
-    def __init__(self):
-        self._value = 1
-
-    def next_page(self):
-        self._value += 1
-        return self._value
-
-    def previous_page(self):
-        self._value -= 1
-        return self._value
-
-    def set_first(self):
-        self._value = 1
-
-    @property
-    def value(self):
-        return self._value
-
-
-# global_page = PageCounter()
 
 stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', 'из-за', 'к', 'ко', 'на', 'о', 'об', 'от', 'по', 'при',
                   'про', 'у', 'at', 'in', 'of', 'to', 'as', 'со', 'с', 'и']
@@ -113,7 +86,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
         await message.answer(data_from_state.get('all_result_messages')[data_from_state.get('page')],
                              reply_markup=data_from_state.get('keyboards')[data_from_state.get('page')])
     elif message.text == 'Отмена':
-        await state.reset_state()
+        await state.finish()
         await message.answer('Отменено', reply_markup=main_menu)
     else:
         await state.update_data(
@@ -126,15 +99,6 @@ async def search_and_show_results(message: Message, state: FSMContext):
         with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
                 as dataset:
             mem_data = json.load(dataset)
-            # result_search = set()
-            # Все это дело поисковое, засунуть в отдельную функцию
-            # for word in str(message.text).split():
-            #     result_match_one_word = set()
-            #     result_match_one_word.update(set(list(filter(
-            #         lambda mem: word.lower() in mem, mem_data.keys()))))
-            #     result_match_one_word.update(set(list(filter(
-            #         lambda mem: word.title() in mem, mem_data.keys()))))
-            #     result_search.update(result_match_one_word)
             result_search = await search(msg=message, dataset=mem_data)
             if len(result_search) == 0:
                 await message.answer('Ничего не найдено по запросу. '

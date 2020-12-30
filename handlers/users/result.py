@@ -57,14 +57,14 @@ async def action_process_callback(call, state):
 @dp.callback_query_handler(text_contains='res',
                            state=Search.search_input_key_words)
 async def process_callback_res_num_button(callback: CallbackQuery, state: FSMContext):
-    data_from_state = await state.get_data()
+    # data_from_state = await state.get_data()
     await action_process_callback(call=callback, state=state)
 
 
 # ten random memes
 @dp.callback_query_handler(text_contains='res', state=Search.ten_random_memes)
-async def process_callback_res_num_button(callback: CallbackQuery):
-    await action_process_callback(callback)
+async def process_callback_res_num_button(callback: CallbackQuery, state: FSMContext):
+    await action_process_callback(call=callback, state=state)
 
 
 # search
@@ -90,5 +90,4 @@ async def process_callback_page_button(callback: CallbackQuery, state: FSMContex
 @dp.callback_query_handler(text_contains='new_random', state=Search.ten_random_memes)
 async def process_callback_new_random(callback: CallbackQuery, state: FSMContext):
     await callback.answer(cache_time=60)
-    await state.finish()
-    await process_random_memes(call=callback)
+    await process_random_memes(call=callback, state=state)
