@@ -2,7 +2,7 @@ from aiogram import types
 from keyboards.default import main_menu
 from aiogram.dispatcher.filters import CommandStart, Text
 from aiogram.types import Message, ReplyKeyboardRemove
-from states.search_states import Search
+from states.main_states import UserStates
 from loader import dp
 from aiogram.dispatcher import FSMContext
 

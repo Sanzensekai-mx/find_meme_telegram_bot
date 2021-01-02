@@ -8,5 +8,8 @@ main_menu = ReplyKeyboardMarkup(
         [
             KeyboardButton(text="10 рандомных мемов")
         ],
+        [
+            KeyboardButton(text='Сотрудничество/Предложения')
+        ]
     ],
     resize_keyboard=True)
