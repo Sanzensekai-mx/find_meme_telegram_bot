@@ -5,7 +5,7 @@ import os
 # load_dotenv()
 BOT_TOKEN = str(os.environ.get('BOT_TOKEN'))
 # BOT_TOKEN = None
-admins = [str(os.environ.get('admins'))]
+admins = str(os.environ.get('admins')).split(', ')
 # admins = []
 
 # with open(os.path.join(os.getcwd(), 'data', 'secret_data.txt'), 'r') as f:
