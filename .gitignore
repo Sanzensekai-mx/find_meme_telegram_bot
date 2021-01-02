@@ -130,5 +130,5 @@ dmypy.json
 .idea/*
 
 # token and admin_id
+/data/secret_data_MemesFinder.txt
 /data/secret_data.txt
-/data/config.py
