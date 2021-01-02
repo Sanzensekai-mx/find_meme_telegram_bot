@@ -131,3 +131,4 @@ dmypy.json
 
 # token and admin_id
 /data/secret_data.txt
+/data/config.py
