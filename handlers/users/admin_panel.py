@@ -5,7 +5,7 @@ from asyncio import sleep
 from loader import dp, bot
 from aiogram.dispatcher import FSMContext
 # from aiogram.dispatcher.filters import Text
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ContentType
 from data.config import admins
 from states.main_states import AdminNewMeme, AdminMailing
 
@@ -151,9 +151,10 @@ async def mailing(message: Message):
     await AdminMailing.Text.set()
 
 
-@dp.message_handler(chat_id=admins, state=AdminMailing.Text)
+@dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.all())
 async def send_everyone(message: Message, state: FSMContext):
     text = message.text
+    # photo = message.photo
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         users_data = json.load(user_r)
         users_chat_id = [user.get('chat_id') for user in users_data.values()]
@@ -161,8 +162,10 @@ async def send_everyone(message: Message, state: FSMContext):
         try:
             await bot.send_message(chat_id=user_chat_id,
                                    text=text)
+            # await bot.send_photo(chat_id=user_chat_id,
+            #                      photo=text)
             await sleep(0.3)
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
     await message.answer("Рассылка выполнена.")
     await state.finish()
