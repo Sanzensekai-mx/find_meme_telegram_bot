@@ -10,14 +10,17 @@ from aiogram.dispatcher import FSMContext
 
 
 async def log_user(mes):
-    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'w+', encoding='utf-8') as user:
+    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         user_data = {} if os.stat(os.path.join(os.getcwd(), 'data', 'user_info.json')).st_size == 0 \
-            else json.load(user)
-        user_data.update({f'{mes.chat.full_name}': {
-            'chat_id': mes.chat.id,
-            'username': mes.chat.username,
-        }})
-        json.dump(user_data, user, indent=4, ensure_ascii=False)
+            else json.load(user_r)
+    user_data.update({f'{mes.chat.full_name}': {
+        'chat_id': mes.chat.id,
+        'username': mes.chat.username,
+    }})
+    print(f'Новый пользователь: {mes.chat.full_name}') if mes.chat.full_name in user_data.keys() \
+        else print('Команда /start была написана')
+    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'w', encoding='utf-8') as user_w:
+        json.dump(user_data, user_w, indent=4, ensure_ascii=False)
 
 
 @dp.message_handler(CommandStart())
