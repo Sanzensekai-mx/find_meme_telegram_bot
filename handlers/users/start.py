@@ -1,3 +1,5 @@
+import os
+import json
 from aiogram import types
 from keyboards.default import main_menu
 from aiogram.dispatcher.filters import CommandStart, Text
@@ -7,8 +9,20 @@ from loader import dp
 from aiogram.dispatcher import FSMContext
 
 
+async def log_user(mes):
+    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'w+', encoding='utf-8') as user:
+        user_data = {} if os.stat(os.path.join(os.getcwd(), 'data', 'user_info.json')).st_size == 0 \
+            else json.load(user)
+        user_data.update({f'{mes.chat.full_name}': {
+            'chat_id': mes.chat.id,
+            'username': mes.chat.username,
+        }})
+        json.dump(user_data, user, indent=4, ensure_ascii=False)
+
+
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
+    await log_user(message)
     await message.answer(f'''
 Привет, {message.from_user.full_name}!
 Этот бот поможет тебе найти пояснение к мему!

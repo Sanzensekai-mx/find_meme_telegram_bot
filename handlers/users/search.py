@@ -100,7 +100,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 as dataset:
             mem_data = json.load(dataset)
             result_search = await search(msg=message, dataset=mem_data)
-            if len(result_search) == 0:
+            if not result_search:
                 await message.answer('Ничего не найдено по запросу. '
                                      'Попробуй написать еще раз свой запрос, но другими словами.',
                                      reply_markup=cancel_search)
