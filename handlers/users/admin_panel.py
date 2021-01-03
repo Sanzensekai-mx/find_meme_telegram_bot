@@ -100,7 +100,6 @@ async def enter_meme_describe(message: Message, state: FSMContext):
 @dp.message_handler(chat_id=admins, state=AdminNewMeme.Link)
 async def enter_meme_link(message: Message, state: FSMContext):
     data = await state.get_data()
-    # if not data.get('meme_href'):
     link = message.text
     data['meme_href'] = link
     await state.update_data(data)
@@ -125,20 +124,23 @@ async def change_some_data(call: CallbackQuery):
         await AdminNewMeme.Describe.set()
     elif what_to_change == 'meme_href':
         await call.message.answer('Пришлите ссылку на страницу мема')
+        await AdminNewMeme.Link.set()
 
 
 @dp.callback_query_handler(text_contains='сonfirm', chat_id=admins, state=AdminNewMeme.Confirm)
 async def confirm_new_meme(call: CallbackQuery, state: FSMContext):
     data_from_state = await state.get_data()
-    with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'w+', encoding='utf-8') \
-            as data:
-        meme_data = json.load(data)
-        meme_data.update({data_from_state.get('name'): {
-            'pic_href': data_from_state.get('pic_href'),
-            'describe': data_from_state.get('describe'),
-            'meme_href': data_from_state.get('meme_href')
+    with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
+            as data_r:
+        meme_data = json.load(data_r)
+    meme_data.update({data_from_state.get('name'): {
+        'pic_href': data_from_state.get('pic_href'),
+        'describe': data_from_state.get('describe'),
+        'meme_href': data_from_state.get('meme_href')
         }})
-        json.dump(meme_data, data, indent=4, ensure_ascii=False)
+    with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'w', encoding='utf-8') \
+            as data_w:
+        json.dump(meme_data, data_w, indent=4, ensure_ascii=False)
     await call.message.answer('Мем добавлен.')
     await state.finish()
 
