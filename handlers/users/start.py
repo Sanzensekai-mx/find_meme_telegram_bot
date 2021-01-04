@@ -10,8 +10,6 @@ from aiogram.dispatcher import FSMContext
 
 
 async def log_user(mes):
-    file = open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'w+', encoding='utf-8')
-    file.close()
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         user_data = {} if os.stat(os.path.join(os.getcwd(), 'data', 'user_info.json')).st_size == 0 \
             else json.load(user_r)
