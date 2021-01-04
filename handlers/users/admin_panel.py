@@ -204,9 +204,12 @@ async def process_photo_send(call=None, mes=None, text_to_photo=None):
         #     else await call.message.photo[0].download('test.jpg')
         for user_chat_id in users_chat_id:
             photo = open('admin_mailing_pic.jpg', 'rb')
-            await bot.send_photo(chat_id=user_chat_id,
-                                 photo=photo, caption=text_to_photo)
-            await sleep(0.3)
+            try:
+                await bot.send_photo(chat_id=user_chat_id,
+                                     photo=photo, caption=text_to_photo)
+                await sleep(0.3)
+            except Exception:
+                pass
             photo.close()
         await call.message.answer("Рассылка выполнена.", reply_markup=main_menu) if call is not None \
             else await mes.answer("Рассылка выполнена.", reply_markup=main_menu)
