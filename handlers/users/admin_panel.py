@@ -4,8 +4,10 @@ from asyncio import sleep
 
 from loader import dp, bot
 from aiogram.dispatcher import FSMContext
-# from aiogram.dispatcher.filters import Text
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ContentType
+from keyboards.default import main_menu
+from keyboards.inline import admin_mailing_kb, photo_mailing_kb
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ContentType, \
+    ReplyKeyboardRemove
 from data.config import admins
 from states.main_states import AdminNewMeme, AdminMailing
 
@@ -25,15 +27,34 @@ async def confirm_or_change(data, mes):
     await AdminNewMeme.Confirm.set()
 
 
-@dp.message_handler(chat_id=admins, commands=['cancel'], state=AdminNewMeme)
+@dp.message_handler(chat_id=admins, commands=['help_admin'])
+async def admin_help(message: Message):
+    text = [
+        'Список команд: ',
+        '/add_meme - добавление нового мема в датасет',
+        '/cancel_meme - отмена добавления нового мема (можно импользовать на любом шаге добавления)',
+        '/mail - текстовая рассылка всем пользователям',
+        '/cancel_mail - отмена рассылки'
+    ]
+    await message.answer('\n'.join(text))
+
+
+@dp.message_handler(chat_id=admins, commands=['cancel_meme'], state=AdminNewMeme)
 async def cancel_add_meme(message: Message, state: FSMContext):
     await message.answer('Отмена добавления нового мема.')
     await state.reset_state()
 
 
+@dp.message_handler(chat_id=admins, commands=['cancel_mail'], state=AdminMailing)
+async def cancel_mail(message: Message, state: FSMContext):
+    await message.answer('Отмена рассылки.')
+    await state.reset_state()
+
+
 @dp.message_handler(chat_id=admins, commands=['add_meme'])
 async def add_meme(message: Message, state: FSMContext):
-    await message.answer('Введите название нового мема или введите /cancel для отмены.')
+    await message.answer('Введите название нового мема или введите /cancel для отмены.',
+                         reply_markup=ReplyKeyboardRemove())
     await AdminNewMeme.Name.set()
     await state.update_data(
         {'name': '',
@@ -105,6 +126,7 @@ async def enter_meme_link(message: Message, state: FSMContext):
     await state.update_data(data)
     await confirm_or_change(data, message)
 
+
 # @dp.message_handler(chat_id=admins, state=AdminNewMeme.Confirm)
 # async def confirm(message: Message, state: FSMContext):
 #     data = await state.get_data()
@@ -112,6 +134,7 @@ async def enter_meme_link(message: Message, state: FSMContext):
 
 @dp.callback_query_handler(text_contains='change', chat_id=admins, state=AdminNewMeme.Confirm)
 async def change_some_data(call: CallbackQuery):
+    await call.answer(cache_time=60)
     what_to_change = call.data.split(':')[1]
     if what_to_change == 'name':
         await call.message.answer('Введите новое имя мема')
@@ -137,24 +160,80 @@ async def confirm_new_meme(call: CallbackQuery, state: FSMContext):
         'pic_href': data_from_state.get('pic_href'),
         'describe': data_from_state.get('describe'),
         'meme_href': data_from_state.get('meme_href')
-        }})
+    }})
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'w', encoding='utf-8') \
             as data_w:
         json.dump(meme_data, data_w, indent=4, ensure_ascii=False)
-    await call.message.answer('Мем добавлен.')
+    await call.message.answer('Мем добавлен.', reply_markup=main_menu)
     await state.finish()
 
 
 @dp.message_handler(chat_id=admins, commands=["mail"])
 async def mailing(message: Message):
-    await message.answer("Пришлите текст рассылки")
-    await AdminMailing.Text.set()
+    await message.answer("Выберите тип рассылки из меню", reply_markup=ReplyKeyboardRemove())
+    await message.answer("Отправить:", reply_markup=admin_mailing_kb)
+    await AdminMailing.MailingMenu.set()
 
 
-@dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.all())
+@dp.callback_query_handler(text_contains='send', chat_id=admins, state=AdminMailing.MailingMenu)
+async def process_callback_data_mailing(call: CallbackQuery, state: FSMContext):
+    await call.answer(cache_time=60)
+    what_to_send = call.data.split('_')[1]
+    if what_to_send == 'photo':
+        await AdminMailing.Photo.set()
+        await call.message.answer('Пришлите фото для отправки.')
+    elif what_to_send == 'text':
+        await AdminMailing.Text.set()
+        await call.message.answer('Напишите текст для отправки.')
+
+
+@dp.message_handler(chat_id=admins, state=AdminMailing.Photo, content_types=[ContentType.PHOTO, ContentType.TEXT])
+async def send_photo_everyone(message: Message, state: FSMContext):
+    await message.answer('Добавить подпись к фото?', reply_markup=photo_mailing_kb)
+    await message.photo[-1].download('test.jpg')
+    # await message.answer("Рассылка выполнена.", reply_markup=main_menu)
+    # await state.finish()
+
+
+async def process_photo_send(call=None, mes=None, text_to_photo=None):
+    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
+        users_data = json.load(user_r)
+        users_chat_id = [user.get('chat_id') for user in users_data.values()]
+        # await call.message.answer.photo[-1].download('test.jpg')
+        # await mes.photo[0].download('test.jpg') if mes is not None \
+        #     else await call.message.photo[0].download('test.jpg')
+        for user_chat_id in users_chat_id:
+            photo = open('test.jpg', 'rb')
+            await bot.send_photo(chat_id=user_chat_id,
+                                 photo=photo, caption=text_to_photo)
+            await sleep(0.3)
+            photo.close()
+        await call.message.answer("Рассылка выполнена.", reply_markup=main_menu) if call is not None \
+            else await mes.answer("Рассылка выполнена.", reply_markup=main_menu)
+
+
+@dp.callback_query_handler(text_contains='text_to_photo', chat_id=admins, state=AdminMailing.Photo)
+async def add_text_or_not(call: CallbackQuery, state: FSMContext):
+    await call.answer(cache_time=60)
+    what_to_do = call.data.split('_')[0]
+    if what_to_do == 'add':
+        await call.message.answer('Введите текстовую подпись к фото.')
+        await AdminMailing.PhotoAddText.set()
+    elif what_to_do == 'no':
+        await process_photo_send(call)
+        # await call.message.answer("Рассылка выполнена.", reply_markup=main_menu)
+        await state.finish()
+
+
+@dp.message_handler(chat_id=admins, state=AdminMailing.PhotoAddText, content_types=ContentType.TEXT)
+async def add_text(message: Message, state: FSMContext):
+    await process_photo_send(mes=message, text_to_photo=message.text)
+    await state.finish()
+
+
+@dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.TEXT)
 async def send_everyone(message: Message, state: FSMContext):
     text = message.text
-    # photo = message.photo
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         users_data = json.load(user_r)
         users_chat_id = [user.get('chat_id') for user in users_data.values()]
@@ -162,8 +241,6 @@ async def send_everyone(message: Message, state: FSMContext):
         try:
             await bot.send_message(chat_id=user_chat_id,
                                    text=text)
-            # await bot.send_photo(chat_id=user_chat_id,
-            #                      photo=text)
             await sleep(0.3)
         except Exception as e:
             print(e)
