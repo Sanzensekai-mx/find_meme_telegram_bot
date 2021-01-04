@@ -13,7 +13,7 @@ async def log_user(mes):
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         user_data = {} if os.stat(os.path.join(os.getcwd(), 'data', 'user_info.json')).st_size == 0 \
             else json.load(user_r)
-    print(f'Новый пользователь: {mes.chat.full_name}') if mes.chat.full_name in user_data.keys() \
+    print(f'Новый пользователь: {mes.chat.full_name}') if mes.chat.full_name not in user_data.keys() \
         else print(f'Команда /start была написана пользователем {mes.chat.full_name}')
     user_data.update({f'{mes.chat.full_name}': {
         'chat_id': mes.chat.id,
