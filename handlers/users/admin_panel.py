@@ -244,5 +244,5 @@ async def send_everyone(message: Message, state: FSMContext):
             await sleep(0.3)
         except Exception as e:
             print(e)
-    await message.answer("Рассылка выполнена.")
+    await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
