@@ -21,3 +21,12 @@ cancel_ten_random = ReplyKeyboardMarkup(
         ]
     ],
     resize_keyboard=True)
+
+cancel_cooperation = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Отмена")
+        ]
+    ],
+    resize_keyboard=True
+)

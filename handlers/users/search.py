@@ -11,7 +11,7 @@ from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup, In
 
 from keyboards.default import main_menu, cancel_search
 from loader import dp
-from states.search_states import Search
+from states.main_states import UserStates
 
 
 stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', 'из-за', 'к', 'ко', 'на', 'о', 'об', 'от', 'по', 'при',
@@ -68,18 +68,18 @@ async def search(msg, dataset):
 @dp.message_handler(Text(equals=['Начать поиск мема']))
 async def wait_for_mem_request(message: Message):
     # LOG you!!!!!!!
-    print({'from': message.chat.first_name, 'text': message.text})
+    print(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
-    await Search.search_input_key_words.set()
+    await UserStates.search_input_key_words.set()
     await message.answer('Введите ключевые слова для поиска мема в базе',
                          reply_markup=ReplyKeyboardRemove())
 
 
-@dp.message_handler(Text, state=Search.search_input_key_words)
+@dp.message_handler(Text, state=UserStates.search_input_key_words)
 async def search_and_show_results(message: Message, state: FSMContext):
     # global_page.set_first()
     # LOG you!!!!!!!
-    print({'from': message.chat.first_name, 'text': message.text})
+    print(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     if message.text == 'Показать результаты поиска':
         data_from_state = await state.get_data()
@@ -100,7 +100,7 @@ async def search_and_show_results(message: Message, state: FSMContext):
                 as dataset:
             mem_data = json.load(dataset)
             result_search = await search(msg=message, dataset=mem_data)
-            if len(result_search) == 0:
+            if not result_search:
                 await message.answer('Ничего не найдено по запросу. '
                                      'Попробуй написать еще раз свой запрос, но другими словами.',
                                      reply_markup=cancel_search)

@@ -5,7 +5,7 @@ from .ten_random_memes import process_random_memes
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 # from handlers.users.search import result_mem_search_by_page, keyboards, all_result_messages, global_page
-from states.search_states import Search
+from states.main_states import UserStates
 from loader import dp, bot
 
 
@@ -56,20 +56,20 @@ async def action_process_callback(call, state):
 
 # search
 @dp.callback_query_handler(text_contains='res',
-                           state=Search.search_input_key_words)
+                           state=UserStates.search_input_key_words)
 async def process_callback_res_num_button(callback: CallbackQuery, state: FSMContext):
     await action_process_callback(call=callback, state=state)
 
 
 # ten random memes
-@dp.callback_query_handler(text_contains='res', state=Search.ten_random_memes)
+@dp.callback_query_handler(text_contains='res', state=UserStates.ten_random_memes)
 async def process_callback_res_num_button(callback: CallbackQuery, state: FSMContext):
     await action_process_callback(call=callback, state=state)
 
 
 # search
 # Этот хэндлер должен как то еще выводить результат поиска
-@dp.callback_query_handler(text_contains='page', state=Search.search_input_key_words)
+@dp.callback_query_handler(text_contains='page', state=UserStates.search_input_key_words)
 async def process_callback_page_button(callback: CallbackQuery, state: FSMContext):
     await callback.answer(cache_time=60)
     if callback.data == 'next_page':
@@ -87,7 +87,7 @@ async def process_callback_page_button(callback: CallbackQuery, state: FSMContex
 
 
 # ten random memes
-@dp.callback_query_handler(text_contains='new_random', state=Search.ten_random_memes)
+@dp.callback_query_handler(text_contains='new_random', state=UserStates.ten_random_memes)
 async def process_callback_new_random(callback: CallbackQuery, state: FSMContext):
     await callback.answer(cache_time=60)
     await process_random_memes(call=callback, state=state)

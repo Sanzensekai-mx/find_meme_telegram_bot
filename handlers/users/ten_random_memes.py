@@ -7,7 +7,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 # from handlers.users.search import result_mem_search_by_page, keyboards, all_result_messages, global_page
 from keyboards.default import main_menu, cancel_ten_random
 from loader import dp
-from states.search_states import Search
+from states.main_states import UserStates
 
 
 # функция используется в разных хэндлерах, поэтому предлагается такое решение
@@ -50,19 +50,19 @@ async def process_random_memes(state, mes=None, call=None):
 
 @dp.message_handler(Text(equals=['10 рандомных мемов']))
 async def start_ten_random_memes(message: Message, state: FSMContext):
-    await Search.ten_random_memes.set()
+    await UserStates.ten_random_memes.set()
     # LOG you!!!!!!!
-    print({'from': message.chat.first_name, 'text': message.text})
+    print(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     # data_from_state = await state.get_data()
     await process_random_memes(state=state, mes=message)
 
 
-@dp.message_handler(Text(equals=['Отмена', 'Показать результаты рандома']), state=Search.ten_random_memes)
+@dp.message_handler(Text(equals=['Отмена', 'Показать результаты рандома']), state=UserStates.ten_random_memes)
 async def process_random_menu(message: Message, state: FSMContext):
     data_from_state = await state.get_data()
     # LOG you!!!!!!!
-    print({'from': message.chat.first_name, 'text': message.text})
+    print(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     if message.text == 'Показать результаты рандома':
         await message.answer(data_from_state.get('all_result_messages')[data_from_state.get('page')],
