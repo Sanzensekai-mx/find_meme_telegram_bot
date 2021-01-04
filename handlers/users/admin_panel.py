@@ -190,7 +190,7 @@ async def process_callback_data_mailing(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(chat_id=admins, state=AdminMailing.Photo, content_types=[ContentType.PHOTO, ContentType.TEXT])
 async def send_photo_everyone(message: Message, state: FSMContext):
     await message.answer('Добавить подпись к фото?', reply_markup=photo_mailing_kb)
-    await message.photo[-1].download('test.jpg')
+    await message.photo[-1].download('admin_mailing_pic.jpg')
     # await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     # await state.finish()
 
@@ -203,7 +203,7 @@ async def process_photo_send(call=None, mes=None, text_to_photo=None):
         # await mes.photo[0].download('test.jpg') if mes is not None \
         #     else await call.message.photo[0].download('test.jpg')
         for user_chat_id in users_chat_id:
-            photo = open('test.jpg', 'rb')
+            photo = open('admin_mailing_pic.jpg', 'rb')
             await bot.send_photo(chat_id=user_chat_id,
                                  photo=photo, caption=text_to_photo)
             await sleep(0.3)
