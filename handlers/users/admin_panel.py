@@ -187,15 +187,27 @@ async def process_callback_data_mailing(call: CallbackQuery, state: FSMContext):
         await call.message.answer('Напишите текст для отправки.')
 
 
-@dp.message_handler(chat_id=admins, state=AdminMailing.Photo, content_types=[ContentType.PHOTO, ContentType.TEXT])
-async def send_photo_everyone(message: Message, state: FSMContext):
-    await message.answer('Добавить подпись к фото?', reply_markup=photo_mailing_kb)
-    await message.photo[-1].download('admin_mailing_pic.jpg')
-    # await message.answer("Рассылка выполнена.", reply_markup=main_menu)
-    # await state.finish()
+# async def process_photo_send(call=None, mes=None, text_to_photo=None):
+#     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
+#         users_data = json.load(user_r)
+#         users_chat_id = [user.get('chat_id') for user in users_data.values()]
+#         # await call.message.answer.photo[-1].download('test.jpg')
+#         # await mes.photo[0].download('test.jpg') if mes is not None \
+#         #     else await call.message.photo[0].download('test.jpg')
+#         for user_chat_id in users_chat_id:
+#             photo = open('admin_mailing_pic.jpg', 'rb')
+#             try:
+#                 await bot.send_photo(chat_id=user_chat_id,
+#                                      photo=photo, caption=text_to_photo)
+#                 await sleep(0.3)
+#             except Exception:
+#                 pass
+#             photo.close()
+#         await call.message.answer("Рассылка выполнена.", reply_markup=main_menu) if call is not None \
+#             else await mes.answer("Рассылка выполнена.", reply_markup=main_menu)
 
 
-async def process_photo_send(call=None, mes=None, text_to_photo=None):
+async def process_photo_send(mes):
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         users_data = json.load(user_r)
         users_chat_id = [user.get('chat_id') for user in users_data.values()]
@@ -206,26 +218,33 @@ async def process_photo_send(call=None, mes=None, text_to_photo=None):
             photo = open('admin_mailing_pic.jpg', 'rb')
             try:
                 await bot.send_photo(chat_id=user_chat_id,
-                                     photo=photo, caption=text_to_photo)
+                                     photo=photo, caption=mes.caption)
                 await sleep(0.3)
             except Exception:
                 pass
             photo.close()
-        await call.message.answer("Рассылка выполнена.", reply_markup=main_menu) if call is not None \
-            else await mes.answer("Рассылка выполнена.", reply_markup=main_menu)
+        await mes.answer("Рассылка выполнена.", reply_markup=main_menu)
 
 
-@dp.callback_query_handler(text_contains='text_to_photo', chat_id=admins, state=AdminMailing.Photo)
-async def add_text_or_not(call: CallbackQuery, state: FSMContext):
-    await call.answer(cache_time=60)
-    what_to_do = call.data.split('_')[0]
-    if what_to_do == 'add':
-        await call.message.answer('Введите текстовую подпись к фото.')
-        await AdminMailing.PhotoAddText.set()
-    elif what_to_do == 'no':
-        await process_photo_send(call)
-        # await call.message.answer("Рассылка выполнена.", reply_markup=main_menu)
-        await state.finish()
+@dp.message_handler(chat_id=admins, state=AdminMailing.Photo, content_types=[ContentType.PHOTO, ContentType.TEXT])
+async def send_photo_everyone(message: Message, state: FSMContext):
+    # await message.answer('Добавить подпись к фото?', reply_markup=photo_mailing_kb)
+    await message.photo[-1].download('admin_mailing_pic.jpg')
+    await process_photo_send(message)
+    await state.finish()
+
+
+# @dp.callback_query_handler(text_contains='text_to_photo', chat_id=admins, state=AdminMailing.Photo)
+# async def add_text_or_not(call: CallbackQuery, state: FSMContext):
+#     await call.answer(cache_time=60)
+#     what_to_do = call.data.split('_')[0]
+#     if what_to_do == 'add':
+#         await call.message.answer('Введите текстовую подпись к фото.')
+#         await AdminMailing.PhotoAddText.set()
+#     elif what_to_do == 'no':
+#         await process_photo_send(call)
+#         # await call.message.answer("Рассылка выполнена.", reply_markup=main_menu)
+#         await state.finish()
 
 
 @dp.message_handler(chat_id=admins, state=AdminMailing.PhotoAddText, content_types=ContentType.TEXT)
