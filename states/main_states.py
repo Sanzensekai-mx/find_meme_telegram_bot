@@ -18,4 +18,4 @@ class AdminNewMeme(StatesGroup):
 class AdminMailing(StatesGroup):
     MailingMenu = State()
     Text = State()
-    Photo = State()
+    Media = State()

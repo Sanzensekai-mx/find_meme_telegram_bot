@@ -30,3 +30,15 @@ cancel_cooperation = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+cancel_or_confirm = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="Отмена")
+        ],
+        [
+            KeyboardButton(text='Подтвердить')
+        ]
+    ],
+    resize_keyboard=True
+)

@@ -2,7 +2,10 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 admin_mailing_kb = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text='Фото (можно с подписью)', callback_data='send_photo')
+        InlineKeyboardButton(text='Медиа (Фото/Видео)', callback_data='send_media')
+    ],
+    [
+        InlineKeyboardButton(text='Аудио', callback_data='send_audio')
     ],
     [
         InlineKeyboardButton(text='Обычный текст', callback_data='send_text')
