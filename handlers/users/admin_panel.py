@@ -61,7 +61,7 @@ async def cancel_mail(message: Message, state: FSMContext):
 @dp.message_handler(chat_id=admins, commands=['add_meme'])
 async def add_meme(message: Message, state: FSMContext):
     logging.info(f'from: {message.chat.full_name}, text: {message.text}')
-    await message.answer('Введите название нового мема или введите /cancel для отмены.',
+    await message.answer('Введите название нового мема или введите /cancel_meme для отмены.',
                          reply_markup=ReplyKeyboardRemove())
     await AdminNewMeme.Name.set()
     await state.update_data(
@@ -80,8 +80,8 @@ async def enter_meme_name(message: Message, state: FSMContext):
         data['name'] = name
         await state.update_data(data)
         await message.answer(f'Название: {name}'
-                             '\nПришлите мне ССЫЛКУ на фото мема (не картинку и не документ) или введите /cancel для '
-                             'отмены')
+                             '\nПришлите мне ССЫЛКУ на фото мема (не картинку и не документ) или введите /cancel_meme '
+                             'для отмены')
 
         await AdminNewMeme.Pic.set()
     else:
@@ -99,8 +99,8 @@ async def enter_meme_pic_link(message: Message, state: FSMContext):
         data['pic_href'] = pic
         await state.update_data(data)
         await message.answer(f'Название: {data.get("name")}'
-                             '\nПришлите мне описание мема, которое будет показываться в боте или введите /cancel для '
-                             'отмены')
+                             '\nПришлите мне описание мема, которое будет показываться в боте или введите /cancel_meme '
+                             'для отмены')
         await AdminNewMeme.Describe.set()
     else:
         pic = message.text
@@ -117,7 +117,8 @@ async def enter_meme_describe(message: Message, state: FSMContext):
         data['describe'] = describe
         await state.update_data(data)
         await message.answer(f'Название: {data.get("name")}'
-                             '\nПришлите мне ссылку на страницу мема на сайте или введите /cancel для отмены')
+                             '\n(Опционально) Пришлите мне ссылку на страницу мема на сайте или введите /cancel_meme '
+                             'для отмены')
         await AdminNewMeme.Link.set()
     else:
         describe = message.text
@@ -179,7 +180,7 @@ async def confirm_new_meme(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(chat_id=admins, commands=["mail"])
 async def mailing(message: Message):
     logging.info(f'from: {message.chat.full_name}, text: {message.text}')
-    await message.answer("Выберите тип рассылки из меню", reply_markup=ReplyKeyboardRemove())
+    await message.answer("Выберите тип рассылки из меню. /cancel_mail для отмены", reply_markup=ReplyKeyboardRemove())
     await message.answer("Отправить:", reply_markup=admin_mailing_kb)
     await AdminMailing.MailingMenu.set()
 
