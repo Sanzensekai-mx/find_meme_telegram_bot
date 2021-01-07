@@ -19,4 +19,3 @@ class AdminMailing(StatesGroup):
     MailingMenu = State()
     Text = State()
     Photo = State()
-    PhotoAddText = State()

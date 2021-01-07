@@ -1,15 +1,19 @@
 import os
 import json
+import logging
 from asyncio import sleep
 
 from loader import dp, bot
 from aiogram.dispatcher import FSMContext
 from keyboards.default import main_menu
-from keyboards.inline import admin_mailing_kb, photo_mailing_kb
+from keyboards.inline import admin_mailing_kb
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ContentType, \
     ReplyKeyboardRemove
 from data.config import admins
 from states.main_states import AdminNewMeme, AdminMailing
+
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.INFO)
 
 
 async def confirm_or_change(data, mes):
@@ -29,6 +33,7 @@ async def confirm_or_change(data, mes):
 
 @dp.message_handler(chat_id=admins, commands=['help_admin'])
 async def admin_help(message: Message):
+    logging.info(f'from: {message.chat.full_name}, text: {message.text}')
     text = [
         'Список команд: ',
         '/add_meme - добавление нового мема в датасет',
@@ -41,18 +46,21 @@ async def admin_help(message: Message):
 
 @dp.message_handler(chat_id=admins, commands=['cancel_meme'], state=AdminNewMeme)
 async def cancel_add_meme(message: Message, state: FSMContext):
+    logging.info(f'from: {message.chat.full_name}, text: {message.text}, info: Отмена добавления нового мема.')
     await message.answer('Отмена добавления нового мема.')
     await state.reset_state()
 
 
 @dp.message_handler(chat_id=admins, commands=['cancel_mail'], state=AdminMailing)
 async def cancel_mail(message: Message, state: FSMContext):
+    logging.info(f'from: {message.chat.full_name}, text: {message.text}, info: Отмена рассылки.')
     await message.answer('Отмена рассылки.')
     await state.reset_state()
 
 
 @dp.message_handler(chat_id=admins, commands=['add_meme'])
 async def add_meme(message: Message, state: FSMContext):
+    logging.info(f'from: {message.chat.full_name}, text: {message.text}')
     await message.answer('Введите название нового мема или введите /cancel для отмены.',
                          reply_markup=ReplyKeyboardRemove())
     await AdminNewMeme.Name.set()
@@ -170,6 +178,7 @@ async def confirm_new_meme(call: CallbackQuery, state: FSMContext):
 
 @dp.message_handler(chat_id=admins, commands=["mail"])
 async def mailing(message: Message):
+    logging.info(f'from: {message.chat.full_name}, text: {message.text}')
     await message.answer("Выберите тип рассылки из меню", reply_markup=ReplyKeyboardRemove())
     await message.answer("Отправить:", reply_markup=admin_mailing_kb)
     await AdminMailing.MailingMenu.set()
@@ -246,11 +255,11 @@ async def send_photo_everyone(message: Message, state: FSMContext):
 #         # await call.message.answer("Рассылка выполнена.", reply_markup=main_menu)
 #         await state.finish()
 
-
-@dp.message_handler(chat_id=admins, state=AdminMailing.PhotoAddText, content_types=ContentType.TEXT)
-async def add_text(message: Message, state: FSMContext):
-    await process_photo_send(mes=message, text_to_photo=message.text)
-    await state.finish()
+#
+# @dp.message_handler(chat_id=admins, state=AdminMailing.PhotoAddText, content_types=ContentType.TEXT)
+# async def add_text(message: Message, state: FSMContext):
+#     await process_photo_send(mes=message, text_to_photo=message.text)
+#     await state.finish()
 
 
 @dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.TEXT)

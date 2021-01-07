@@ -1,6 +1,6 @@
 import json
 import os
-import re
+import logging
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from math import ceil
@@ -13,6 +13,8 @@ from keyboards.default import main_menu, cancel_search
 from loader import dp
 from states.main_states import UserStates
 
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.INFO)
 
 stop_word_list = ['в', 'до', 'без', 'безо', 'во', 'за', 'из', 'из-за', 'к', 'ко', 'на', 'о', 'об', 'от', 'по', 'при',
                   'про', 'у', 'at', 'in', 'of', 'to', 'as', 'со', 'с', 'и']
@@ -68,7 +70,7 @@ async def search(msg, dataset):
 @dp.message_handler(Text(equals=['Начать поиск мема']))
 async def wait_for_mem_request(message: Message):
     # LOG you!!!!!!!
-    print(f'from: {message.chat.first_name}, text: {message.text}')
+    logging.info(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     await UserStates.search_input_key_words.set()
     await message.answer('Введите ключевые слова для поиска мема в базе',
@@ -79,7 +81,7 @@ async def wait_for_mem_request(message: Message):
 async def search_and_show_results(message: Message, state: FSMContext):
     # global_page.set_first()
     # LOG you!!!!!!!
-    print(f'from: {message.chat.first_name}, text: {message.text}')
+    logging.info(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     if message.text == 'Показать результаты поиска':
         data_from_state = await state.get_data()

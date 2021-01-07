@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from random import choice
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher import FSMContext
@@ -8,6 +9,9 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from keyboards.default import main_menu, cancel_ten_random
 from loader import dp
 from states.main_states import UserStates
+
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.INFO)
 
 
 # функция используется в разных хэндлерах, поэтому предлагается такое решение
@@ -52,7 +56,7 @@ async def process_random_memes(state, mes=None, call=None):
 async def start_ten_random_memes(message: Message, state: FSMContext):
     await UserStates.ten_random_memes.set()
     # LOG you!!!!!!!
-    print(f'from: {message.chat.first_name}, text: {message.text}')
+    logging.info(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     # data_from_state = await state.get_data()
     await process_random_memes(state=state, mes=message)
@@ -62,7 +66,7 @@ async def start_ten_random_memes(message: Message, state: FSMContext):
 async def process_random_menu(message: Message, state: FSMContext):
     data_from_state = await state.get_data()
     # LOG you!!!!!!!
-    print(f'from: {message.chat.first_name}, text: {message.text}')
+    logging.info(f'from: {message.chat.first_name}, text: {message.text}')
     # LOG you!!!!!!!
     if message.text == 'Показать результаты рандома':
         await message.answer(data_from_state.get('all_result_messages')[data_from_state.get('page')],
