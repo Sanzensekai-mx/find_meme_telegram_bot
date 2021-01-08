@@ -5,7 +5,7 @@ from asyncio import sleep
 
 from loader import dp, bot
 from aiogram.dispatcher import FSMContext
-from keyboards.default import main_menu, cancel_or_confirm
+from keyboards.default import main_menu, admin_cancel_or_confirm, admin_cancel_add_meme
 from keyboards.inline import admin_mailing_kb
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ContentType, \
     ReplyKeyboardRemove, InputMediaPhoto, InputMediaVideo
@@ -62,7 +62,7 @@ async def cancel_mail(message: Message, state: FSMContext):
 async def add_meme(message: Message, state: FSMContext):
     logging.info(f'from: {message.chat.full_name}, text: {message.text}')
     await message.answer('Введите название нового мема или введите /cancel_meme для отмены.',
-                         reply_markup=ReplyKeyboardRemove())
+                         reply_markup=admin_cancel_add_meme)
     await AdminNewMeme.Name.set()
     await state.update_data(
         {'name': '',
@@ -189,7 +189,7 @@ async def process_callback_data_mailing(call: CallbackQuery):
         await call.message.answer('Пришлите нужное количество фото/видео по одной штуке для отправки пользователям '
                                   'группы. Нужную подпись можно будет добавить к одному присланному медиа. Если к '
                                   'нескольким файлам добавить надпись, то её вообще не будет.',
-                                  reply_markup=cancel_or_confirm)
+                                  reply_markup=admin_cancel_or_confirm)
     # elif what_to_send == 'audio':
     #     await AdminMailing.Audio.set()
     #     await call.message.answer('Пришлите аудиозапись. За раз можно отправить только одну.')
@@ -216,9 +216,11 @@ async def process_media_send(msg, state):
     await AdminMailing.Media.set()
 
 
-@dp.message_handler(chat_id=admins, state=AdminMailing.Media, content_types=[ContentType.PHOTO, ContentType.VIDEO,
-                                                                             ContentType.VIDEO_NOTE])
+@dp.message_handler(chat_id=admins, state=AdminMailing.Media, content_types=[ContentType.PHOTO,
+                                                                             ContentType.VIDEO,
+                                                                             ContentType.TEXT])
 async def send_group_photo(message: Message, state: FSMContext):
+    logging.info(message.text)
     data_from_state = await state.get_data()
     if data_from_state.get('media_file_id') is None:
         await state.update_data({'media_file_id': []})
@@ -226,8 +228,9 @@ async def send_group_photo(message: Message, state: FSMContext):
         print(data_from_state.get('media_file_id'))
     if message.photo or message.video:
         await process_media_send(message, state)
-    elif message.text == 'Отмена':
-        await state.finish()
+    # elif message.text == 'Отмена':
+    #       await message.answer('Отменено.', reply_markup=main_menu)
+    #       await state.reset_state()
     elif message.text == 'Подтвердить':
         with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
             users_data = json.load(user_r)
