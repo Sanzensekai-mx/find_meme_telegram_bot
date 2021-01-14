@@ -18,5 +18,7 @@ class AdminNewMeme(StatesGroup):
 class AdminMailing(StatesGroup):
     MailingMenu = State()
     Text = State()
-    Photo = State()
-    PhotoAddText = State()
+    Media = State()
+    Audio = State()
+    Documents = State()
+    AnotherMedia = State()

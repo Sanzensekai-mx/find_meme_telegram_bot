@@ -30,3 +30,24 @@ cancel_cooperation = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+admin_cancel_or_confirm = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="/cancel_mail")
+        ],
+        [
+            KeyboardButton(text='Подтвердить')
+        ]
+    ],
+    resize_keyboard=True
+)
+
+admin_cancel_add_meme = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="/cancel_meme")
+        ]
+    ],
+    resize_keyboard=True
+)

@@ -1,5 +1,6 @@
 import os
 import json
+import logging
 from aiogram.utils.exceptions import BadRequest
 from .ten_random_memes import process_random_memes
 from aiogram.dispatcher import FSMContext
@@ -7,6 +8,9 @@ from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardBut
 # from handlers.users.search import result_mem_search_by_page, keyboards, all_result_messages, global_page
 from states.main_states import UserStates
 from loader import dp, bot
+
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+                    level=logging.INFO)
 
 
 async def open_choice_meme(current_call, meme_data, meme_id, state):
@@ -41,7 +45,7 @@ async def open_choice_meme(current_call, meme_data, meme_id, state):
         await current_call.message.answer('Нажми кнопку, чтобы открыть странцу мема в источнике на memepedia.ru',
                                           reply_markup=detailed_inline_kb)
     except Exception as e:
-        print(e)
+        logging.info(e)
         await current_call.message.answer('Ссылки на страницу мема нет в базе.')
 
 
