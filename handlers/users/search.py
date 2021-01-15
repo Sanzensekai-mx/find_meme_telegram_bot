@@ -67,7 +67,7 @@ async def search(msg, dataset):
 #         await message.answer('Отменено', reply_markup=main_menu)
 
 
-@dp.message_handler(Text(equals=['Поиск мема']))
+@dp.message_handler(Text(equals=['Поиск мема 🗿']))
 async def wait_for_mem_request(message: Message):
     # LOG you!!!!!!!
     logging.info(f'from: {message.chat.first_name}, text: {message.text}')
