@@ -50,7 +50,8 @@ async def process_callback_data_mailing(call: CallbackQuery):
                                   reply_markup=admin_cancel_mail_or_confirm)
     elif what_to_send == 'another':
         await AdminMailing.AnotherMedia.set()
-        await call.message.answer('Пришлите документ, аудио или анимацию. За раз можно отправить только один объект.',
+        await call.message.answer('Пришлите документ, аудио, анимацию, стикер, голосовое или видеозаметку. '
+                                  'За раз можно отправить только один объект.',
                                   reply_markup=admin_cancel_mail)
     elif what_to_send == 'forward':
         await AdminMailing.Forward.set()
@@ -74,6 +75,7 @@ async def process_media_send(msg, state):
     await AdminMailing.Media.set()
 
 
+# Отправить медиагруппу: Фото/Видео/Подпись к ним
 @dp.message_handler(chat_id=admins, state=AdminMailing.Media, content_types=[ContentType.PHOTO,
                                                                              ContentType.VIDEO,
                                                                              ContentType.TEXT])
@@ -102,29 +104,49 @@ async def send_group_photo(message: Message, state: FSMContext):
         await state.finish()
 
 
+# Отправить Документ/Аудио/Анимацию(гифку)/Стикер/Голосовое/Видеозаметку
 @dp.message_handler(chat_id=admins, state=AdminMailing.AnotherMedia, content_types=[ContentType.DOCUMENT,
                                                                                     ContentType.AUDIO,
-                                                                                    ContentType.ANIMATION])
+                                                                                    ContentType.ANIMATION,
+                                                                                    ContentType.STICKER,
+                                                                                    ContentType.VOICE,
+                                                                                    ContentType.VIDEO_NOTE])
 async def send_another(message: Message, state: FSMContext):
-    type_dict = ['audio', 'document', 'animation']
-    type_from_msg = [k for k in message.values.keys() if k in type_dict][0]
+    type_dict_caption = ['audio', 'document', 'animation']
+    type_dict_without_caption = ['sticker', 'voice', 'video_note']
+    caption_type_from_msg = []
+    no_caption_type_from_msg = []
+    try:
+        caption_type_from_msg = [k for k in message.values.keys() if k in type_dict_caption][0]
+    except IndexError:
+        no_caption_type_from_msg = [k for k in message.values.keys() if k in type_dict_without_caption][0]
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         users_data = json.load(user_r)
         users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
-        # users_chat_id = [user.get('chat_id') for user in users_data.values()]
     type_msg_dict = {}
-    if type_from_msg == 'document':
+    if caption_type_from_msg == 'document':
         type_msg_dict['document'] = bot.send_document
         type_msg_dict['file_id'] = message.document.file_id
-    elif type_from_msg == 'audio':
+    elif caption_type_from_msg == 'audio':
         type_msg_dict['audio'] = bot.send_audio
         type_msg_dict['file_id'] = message.audio.file_id
-    elif type_from_msg == 'animation':
+    elif caption_type_from_msg == 'animation':
         type_msg_dict['animation'] = bot.send_animation
         type_msg_dict['file_id'] = message.animation.file_id
+    elif no_caption_type_from_msg == 'sticker':
+        type_msg_dict['sticker'] = bot.send_sticker
+        type_msg_dict['file_id'] = message.sticker.file_id
+    elif no_caption_type_from_msg == 'voice':
+        type_msg_dict['voice'] = bot.send_voice
+        type_msg_dict['file_id'] = message.voice.file_id
+    elif no_caption_type_from_msg == 'video_note':
+        type_msg_dict['video_note'] = bot.send_video_note
+        type_msg_dict['file_id'] = message.video_note.file_id
     for user_name, user_chat_id in users_name_chat_id.items():
         try:
-            await type_msg_dict[type_from_msg](user_chat_id, type_msg_dict['file_id'], caption=message.caption)
+            await type_msg_dict[caption_type_from_msg](user_chat_id, type_msg_dict['file_id'],
+                                                       caption=message.caption) if caption_type_from_msg \
+                else await type_msg_dict[no_caption_type_from_msg](user_chat_id, type_msg_dict['file_id'])
             await sleep(0.3)
         except Exception as e:
             logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
@@ -133,6 +155,7 @@ async def send_another(message: Message, state: FSMContext):
     await state.finish()
 
 
+# Отправить обычный текст, без медиа
 @dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.TEXT)
 async def send_everyone(message: Message, state: FSMContext):
     text = message.text
@@ -152,6 +175,7 @@ async def send_everyone(message: Message, state: FSMContext):
     await state.finish()
 
 
+# Отправить пересланное сообщение
 @dp.message_handler(chat_id=admins, state=AdminMailing.Forward, content_types=ContentType.all())
 async def send_forward_message(message: Message, state: FSMContext):
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
