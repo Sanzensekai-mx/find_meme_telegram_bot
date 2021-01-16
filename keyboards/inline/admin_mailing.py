@@ -4,14 +4,11 @@ admin_mailing_kb = InlineKeyboardMarkup(inline_keyboard=[
     [
         InlineKeyboardButton(text='Медиа (Фото/Видео)', callback_data='send_media')
     ],
-    # [
-    #     InlineKeyboardButton(text='Аудио', callback_data='send_audio')
-    # ],
-    # [
-    #     InlineKeyboardButton(text='Документ', callback_data='send_doc')
-    # ],
     [
         InlineKeyboardButton(text='Документы, аудиозаписи, гифки', callback_data='send_another')
+    ],
+    [
+        InlineKeyboardButton(text='Пересланный пост/сообщение', callback_data='send_forward')
     ],
     [
         InlineKeyboardButton(text='Обычный текст', callback_data='send_text')

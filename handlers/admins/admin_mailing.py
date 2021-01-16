@@ -8,7 +8,7 @@ from aiogram.dispatcher import FSMContext
 from keyboards.default import main_menu, admin_cancel_mail_or_confirm, admin_cancel_mail
 from keyboards.inline import admin_mailing_kb
 from aiogram.types import Message, CallbackQuery, ContentType, \
-    ReplyKeyboardRemove, InputMediaPhoto, InputMediaVideo
+    InputMediaPhoto, InputMediaVideo
 from data.config import admins
 from states.main_states import AdminMailing
 
@@ -52,6 +52,12 @@ async def process_callback_data_mailing(call: CallbackQuery):
         await AdminMailing.AnotherMedia.set()
         await call.message.answer('Пришлите документ, аудио или анимацию. За раз можно отправить только один объект.',
                                   reply_markup=admin_cancel_mail)
+    elif what_to_send == 'forward':
+        await AdminMailing.Forward.set()
+        await call.message.answer('Перешлите нужный пост в этот диалог. Имейте ввиду, что если в посте несколько'
+                                  'фото/видео, то пользователям отошлется только первая картинка. Сработает Too'
+                                  'many requests.',
+                                  reply_markup=admin_cancel_mail)
     elif what_to_send == 'text':
         await AdminMailing.Text.set()
         await call.message.answer('Напишите текст для отправки.', reply_markup=admin_cancel_mail)
@@ -62,7 +68,6 @@ async def process_media_send(msg, state):
     if msg.photo:
         data_from_state.get('media_file_id').append(InputMediaPhoto(msg.photo[-1].file_id, caption=msg.caption))
     elif msg.video:
-        # print(mes.video)
         data_from_state.get('media_file_id').append(InputMediaVideo(msg.video.file_id, caption=msg.caption))
     await state.update_data(data_from_state)
     await state.reset_state(with_data=False)
@@ -81,9 +86,6 @@ async def send_group_photo(message: Message, state: FSMContext):
         print(data_from_state.get('media_file_id'))
     if message.photo or message.video:
         await process_media_send(message, state)
-    # elif message.text == 'Отмена':
-    #       await message.answer('Отменено.', reply_markup=main_menu)
-    #       await state.reset_state()
     elif message.text == 'Подтвердить':
         with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
             users_data = json.load(user_r)
@@ -143,6 +145,24 @@ async def send_everyone(message: Message, state: FSMContext):
             await bot.send_message(chat_id=user_chat_id,
                                    text=text)
             await sleep(0.3)
+        except Exception as e:
+            logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
+            await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
+    await message.answer("Рассылка выполнена.", reply_markup=main_menu)
+    await state.finish()
+
+
+@dp.message_handler(chat_id=admins, state=AdminMailing.Forward, content_types=ContentType.all())
+async def send_forward_message(message: Message, state: FSMContext):
+    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
+        users_data = json.load(user_r)
+        users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
+    for user_name, user_chat_id in users_name_chat_id.items():
+        try:
+            await bot.forward_message(chat_id=user_chat_id,
+                                      from_chat_id=message.chat.id,
+                                      message_id=message.message_id)
+            await sleep(2)
         except Exception as e:
             logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
             await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
