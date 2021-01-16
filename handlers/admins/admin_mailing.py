@@ -32,7 +32,7 @@ async def mailing(message: Message):
         data = json.load(users)
         amount_users = len(data.keys())
     logging.info(f'from: {message.chat.full_name}, text: {message.text}')
-    await message.answer("Выберите тип рассылки из меню. /cancel_mail для отмены"
+    await message.answer("Выберите тип рассылки из меню. Нажмите /cancel_mail для отмены. "
                          f"Сейчас в боте {amount_users} пользователя(ей)", reply_markup=admin_cancel_mail)
     await message.answer("Отправить:", reply_markup=admin_mailing_kb)
     await AdminMailing.MailingMenu.set()
