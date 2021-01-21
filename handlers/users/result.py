@@ -5,7 +5,6 @@ from aiogram.utils.exceptions import BadRequest
 from .ten_random_memes import process_random_memes
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-# from handlers.users.search import result_mem_search_by_page, keyboards, all_result_messages, global_page
 from states.main_states import UserStates
 from loader import dp, bot
 
@@ -42,7 +41,7 @@ async def open_choice_meme(current_call, meme_data, meme_id, state):
         await current_call.message.answer('Описание мема не найдено.')
     try:
         # Добавить вывод названия сайта по записи в json?
-        await current_call.message.answer('Нажми кнопку, чтобы открыть странцу мема в источнике на memepedia.ru',
+        await current_call.message.answer('Нажми кнопку, чтобы открыть страницу мема в источнике на memepedia.ru',
                                           reply_markup=detailed_inline_kb)
     except Exception as e:
         logging.info(e)
@@ -72,7 +71,6 @@ async def process_callback_res_num_button(callback: CallbackQuery, state: FSMCon
 
 
 # search
-# Этот хэндлер должен как то еще выводить результат поиска
 @dp.callback_query_handler(text_contains='page', state=UserStates.search_input_key_words)
 async def process_callback_page_button(callback: CallbackQuery, state: FSMContext):
     await callback.answer(cache_time=60)

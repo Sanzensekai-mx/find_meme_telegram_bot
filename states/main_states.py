@@ -19,6 +19,5 @@ class AdminMailing(StatesGroup):
     MailingMenu = State()
     Text = State()
     Media = State()
-    Audio = State()
-    Documents = State()
     AnotherMedia = State()
+    Forward = State()

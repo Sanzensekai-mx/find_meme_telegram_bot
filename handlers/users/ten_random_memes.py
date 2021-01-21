@@ -52,7 +52,7 @@ async def process_random_memes(state, mes=None, call=None):
             else await call.message.answer(text=result_message, reply_markup=result_kb)
 
 
-@dp.message_handler(Text(equals=['10 рандомных мемов']))
+@dp.message_handler(Text(equals=['10 рандомных мемов ✨']))
 async def start_ten_random_memes(message: Message, state: FSMContext):
     await UserStates.ten_random_memes.set()
     # LOG you!!!!!!!

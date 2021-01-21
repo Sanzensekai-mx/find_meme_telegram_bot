@@ -11,7 +11,7 @@ logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(
                     level=logging.INFO)
 
 
-@dp.message_handler(Text(equals=['Сотрудничество/Предложения']))
+@dp.message_handler(Text(equals=['Сотрудничество/Предложения ✉']))
 async def ask_offers_and_cooperation(message: Message):
     # LOG you
     logging.info(f'from: {message.chat.first_name}, text: {message.text}')
