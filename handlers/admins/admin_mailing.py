@@ -55,8 +55,8 @@ async def process_callback_data_mailing(call: CallbackQuery):
                                   reply_markup=admin_cancel_mail)
     elif what_to_send == 'forward':
         await AdminMailing.Forward.set()
-        await call.message.answer('Перешлите нужный пост в этот диалог. Имейте ввиду, что если в посте несколько'
-                                  'фото/видео, то пользователям отошлется только первая картинка. Сработает Too'
+        await call.message.answer('Перешлите нужный пост в этот диалог. Имейте ввиду, что если в посте несколько '
+                                  'фото/видео, то пользователям отошлется только первая картинка. Сработает Too '
                                   'many requests.',
                                   reply_markup=admin_cancel_mail)
     elif what_to_send == 'text':
@@ -162,7 +162,6 @@ async def send_everyone(message: Message, state: FSMContext):
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         users_data = json.load(user_r)
         users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
-        # users_chat_id = [user.get('chat_id') for user in users_data.values()]
     for user_name, user_chat_id in users_name_chat_id.items():
         try:
             await bot.send_message(chat_id=user_chat_id,
