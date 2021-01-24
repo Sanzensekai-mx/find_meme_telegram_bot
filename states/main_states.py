@@ -21,3 +21,4 @@ class AdminMailing(StatesGroup):
     Media = State()
     AnotherMedia = State()
     Forward = State()
+    AddButton = State()

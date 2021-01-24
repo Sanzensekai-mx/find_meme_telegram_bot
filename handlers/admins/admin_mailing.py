@@ -8,7 +8,7 @@ from aiogram.dispatcher import FSMContext
 from keyboards.default import main_menu, admin_cancel_mail_or_confirm, admin_cancel_mail
 from keyboards.inline import admin_mailing_kb
 from aiogram.types import Message, CallbackQuery, ContentType, \
-    InputMediaPhoto, InputMediaVideo
+    InputMediaPhoto, InputMediaVideo, InlineKeyboardButton, InlineKeyboardMarkup
 from data.config import admins
 from states.main_states import AdminMailing
 
@@ -155,10 +155,18 @@ async def send_another(message: Message, state: FSMContext):
     await state.finish()
 
 
+# Experimental
+# async def add_button(message):
+#     kb_b = InlineKeyboardMarkup().add(InlineKeyboardButton('Да', callback_data='yes_button'))
+#     kb_b.insert(InlineKeyboardButton('Нет', callback_data='no_button'))
+#     return kb_b
+
+
 # Отправить обычный текст, без медиа
 @dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.TEXT)
 async def send_everyone(message: Message, state: FSMContext):
     text = message.text
+    # await message.answer('Добавить кнопку?', reply_markup=await add_button(message))
     with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
         users_data = json.load(user_r)
         users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
@@ -191,3 +199,14 @@ async def send_forward_message(message: Message, state: FSMContext):
             await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
+
+
+# Experimental
+# @dp.callback_query_handler(state=AdminMailing, text_contains='_button')
+# async def choice_to_add_button(call: CallbackQuery):
+#     answer = call.message.text.split('_')[0]
+#     if answer == 'yes':
+#         print('Введите текст кнопки.')
+#         await AdminMailing.AddButton.set()
+#     elif answer == 'no':
+#         pass
