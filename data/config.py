@@ -15,10 +15,15 @@ load_dotenv()
 #     for elem in secret_data[1:]:
 #         admins.append(elem)
 
-# ip = os.getenv("ip")
-
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 admins = str(os.getenv("admins")).split(', ')
+
 host = os.getenv("PG_HOST")
 PG_USER = os.getenv("PG_USER")
 PG_PASS = os.getenv("PG_PASS")
+DATABASE = str(os.getenv("DATABASE"))
+
+ip = os.getenv("ip")
+
+# Ссылка подключения к базе данных
+POSTGRES_URI = f"postgresql://{PG_USER}:{PG_PASS}@{ip}/{DATABASE}"

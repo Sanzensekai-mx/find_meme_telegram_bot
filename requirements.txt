@@ -9,3 +9,5 @@ beautifulsoup4~=4.9.3
 fuzzywuzzy~=0.18.0
 python-Levenshtein
 boto~=2.49.0
+asyncpg~=0.21.0
+gino~=1.0.1
