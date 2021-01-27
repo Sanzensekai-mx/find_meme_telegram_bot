@@ -709,6 +709,11 @@
         "describe": "Me Gusta Guy (Ме густа, I like it) — мем с выпученными глазами, расплывшийся в хитрой улыбке. Он появляется, чтобы выразить своё удовлетворение от невыносимо отвратительных или странных вещей.",
         "meme_href": "https://memepedia.ru/me-gusta-guy/"
     },
+    "Me Too": {
+        "pic_href": "https://memepedia.ru/wp-content/uploads/2021/01/me-too-8.jpg",
+        "describe": "Me Too (#MeToo, Я тоже) – хэштег, который возник в поддержку жертв сексуального насилия. Появился на волне истории с Харви Вайнштейном, под ним женщины публиковали свои истории. В итоге появилось целое движение Me Too.",
+        "meme_href": "https://memepedia.ru/me-too/"
+    },
     "Meme Police": {
         "pic_href": "https://memepedia.ru/wp-content/uploads/2018/09/youve-been-visited-by-meme-police.jpg",
         "describe": "Meme Police (Полиция Мемов) — юмористическая отсылка к вымышленным сотрудникам правоохранительных органов, наделенных полномочиями устанавливать ограничения на использование и распространение интернет-мемов.",
@@ -1340,7 +1345,7 @@
         "meme_href": "https://memepedia.ru/you-win-this-time/"
     },
     "You’re Mom Gay": {
-        "pic_href": "https://memepedia.ru/wp-content/uploads/2021/01/chyk-chyryk-mem-360x180.jpg",
+        "pic_href": "https://memepedia.ru/wp-content/uploads/2021/01/bydlo-mem-360x180.png",
         "describe": "You’re mom gay (ur mom gay) – грамматически неправильное написанная фраза ‘your mom is gay’, используемая для комического оскорбления оппонента и шитпостинга. В зависимости от контекста, фразу можно интерпретировать по-разному, но чаще всего её употребляют в буквальном значении “твоя мама — гей”.",
         "meme_href": "https://memepedia.ru/youre-mom-gay-no-u/"
     },
@@ -1418,6 +1423,11 @@
         "pic_href": "https://memepedia.ru/wp-content/uploads/2020/11/adzhara-gudzhu.png",
         "describe": "Аджара Гуджу – название жареных семечек и пожелание на кабардинском языке. Фраза стала мемом в интернете благодаря серии вирусных роликов на ютубе.",
         "meme_href": "https://memepedia.ru/adzhara-gudzhu/"
+    },
+    "Аквадискотека": {
+        "pic_href": "https://memepedia.ru/wp-content/uploads/2021/01/esfodbpxaaaza2j.jpg",
+        "describe": "Аквадискотека – один из объектов на территории дворца Владимира Путина в Геленджике из расследования ФБК. Точно неизвестно, что это такое. В расследовании Алексей Навальный предположил, что это бассейн со светомузыкой. В качестве мема аквадискотека может означать все что угодно, связанное с водой, музыкой, людьми и танцами.",
+        "meme_href": "https://memepedia.ru/akvadiskoteka/"
     },
     "Аксиома Эскобара": {
         "pic_href": "https://memepedia.ru/wp-content/uploads/2018/09/eskobar-obe.jpg",
@@ -3148,6 +3158,11 @@
         "pic_href": "https://memepedia.ru/wp-content/uploads/2016/08/1464126622_9ibrcauk2qm.jpg",
         "describe": "Еее рок – изображение скелета с гитарой, пылающего в огне. Мем означает одобрительную реакцию.",
         "meme_href": "https://memepedia.ru/eee-rock/"
+    },
+    "Екарный бабай, елы палы, едрен батон": {
+        "pic_href": "https://memepedia.ru/wp-content/uploads/2021/01/ekarnyj-babaj-mem.jpg",
+        "describe": "Екарный бабай, елы палы, едрен батон – серия мемов, в которых человек в маске анонимуса использует устаревшие ругательства, заменяющие мат.",
+        "meme_href": "https://memepedia.ru/ekarnyj-babaj-ely-paly-edren-baton/"
     },
     "Екатерина Диденко": {
         "pic_href": "https://memepedia.ru/wp-content/uploads/2020/03/82565250_2912653568753528_876077812517840835_n.jpg",
@@ -6648,6 +6663,11 @@
         "pic_href": "https://memepedia.ru/wp-content/uploads/2017/10/влюбленный-пингвин-10.jpg",
         "describe": "Пингвин и девочка из аниме (влюбленный пингвин) – пингвин Гумбольдта из японского зоопарка, который влюбился в фигуру аниме-персонажа Хулулу, установленную в вольере. Стал символом настоящей любви.",
         "meme_href": "https://memepedia.ru/pingvin-i-devochka-iz-anime/"
+    },
+    "Пингвин с блокнотом": {
+        "pic_href": "https://memepedia.ru/wp-content/uploads/2021/01/zl5uwwv9r7s.jpg",
+        "describe": "Пингвин с блокнотом (Noted, Ковальски с блокнотом, Понял) – мем с пингвином Ковальски из “Пингвинов Мадагаскара”, который что-то записывает в блокнот и говорит “Понял” (“Записано”).",
+        "meme_href": "https://memepedia.ru/pingvin-s-bloknotom/"
     },
     "Пингвин-каламбурист": {
         "pic_href": "https://memepedia.ru/wp-content/uploads/2018/02/пингвин-звонит-шаблон-768x576.jpg",

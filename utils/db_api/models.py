@@ -4,12 +4,12 @@ from aiogram import types, Bot
 
 class User(db.Model):
     __tablename__ = 'users'
+    id = db.Column(db.Integer, db.Sequence('user_id_seq'), primary_key=True)
+    full_name = db.Column(db.String)
     # Идентификатор чата с пользователем
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.BigInteger)
+    user_id = db.Column(db.BigInteger, unique=True)
     # Никнейм пользователя
     username = db.Column(db.String)
-    full_name = db.Column(db.String)
 
     def __repr__(self):
         return "<User(id='{}', fullname='{}', username='{}')>".format(
@@ -18,11 +18,11 @@ class User(db.Model):
 
 class Meme(db.Model):
     __tablename__ = 'meme_datatable'
-    pic_href = db.Column(db.String)
+    id = db.Column(db.Integer, db.Sequence('meme_id_seq'), primary_key=True)
+    meme_name = db.Column(db.String, unique=True)
     describe = db.Column(db.String)
+    pic_href = db.Column(db.String)
     meme_href = db.Column(db.String)
-    meme_name = db.Column(db.String)
-    id = db.Column(db.Integer, primary_key=True)
 
     def __repr__(self):
         return "<Meme(id='{}', name='{}')>".format(
@@ -50,6 +50,38 @@ class DBCommands:
         total = await db.func.count(User.id).gino.scalar()
         return total
 
+    async def get_meme(self, meme_name):
+        meme = await Meme.query.where(Meme.meme_name == meme_name).gino.first()
+        return meme
+
+    async def is_this_meme_in_db(self, meme_name):
+        meme = await self.get_meme(meme_name)
+        if meme:
+            return True
+        else:
+            return False
+
     async def show_meme(self):
         items = await Meme.query.gino.all()
         return items
+
+    async def add_meme(self, meme_name, meme_describe=None, meme_href=None, meme_photo_href=None):
+        old_meme = await self.get_meme(meme_name)
+        # Обновляет мем, если такой уже существует в БД
+        if old_meme:
+            await old_meme.update(
+                id=old_meme.id,
+                meme_name=meme_name,
+                meme_href=meme_href,
+                describe=meme_describe,
+                pic_href=meme_photo_href
+            ).apply()
+            return old_meme
+        # Создание нового мема в БД
+        new_meme = Meme()
+        new_meme.meme_name = meme_name
+        new_meme.meme_href = meme_href
+        new_meme.describe = meme_describe
+        new_meme.pic_href = meme_photo_href
+        await new_meme.create()
+        return new_meme
