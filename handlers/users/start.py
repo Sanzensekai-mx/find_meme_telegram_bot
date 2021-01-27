@@ -43,7 +43,7 @@ async def bot_start(message: types.Message):
         await message.answer(f'''
 Привет, {name_user}!
 У тебя права администратора! Введи /help_admin
-В боте {count_users} юзера.
+В боте {count_users} юзер(а).
         ''')
     else:
         await message.answer(f'''

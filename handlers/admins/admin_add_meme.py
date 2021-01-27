@@ -58,7 +58,7 @@ async def add_meme(message: Message, state: FSMContext):
 async def enter_meme_name(message: Message, state: FSMContext):
     data = await state.get_data()
     if not data.get('name'):
-        name = message.text
+        name = message.text.strip()
         data['name'] = name
         data['is_meme_in_db'] = 'Мем уже существует в БД.' if await db.is_this_meme_in_db(name) \
             else 'Такого мема нет в БД.'
