@@ -36,4 +36,4 @@ async def enter_del_meme_name(message: Message, state: FSMContext):
     else:
         await message.answer(f'Мема "{name}" нет в БД.'
                              '\nПопробуйте ввести еще раз.'
-                             '\nИли /cancel_del_meme для отмены удаления.', reply_markup=main_menu)
+                             '\nИли /cancel_del_meme для отмены удаления.', reply_markup=admin_cancel_del_meme)
