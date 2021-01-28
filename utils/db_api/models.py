@@ -63,9 +63,13 @@ class DBCommands:
         else:
             return False
 
-    async def show_meme(self):
+    async def show_all_meme(self):
         items = await Meme.query.gino.all()
         return items
+
+    async def count_memes(self) -> int:
+        total = await db.func.count(Meme.id).gino.scalar()
+        return total
 
     async def add_meme(self, meme_name, meme_describe=None, meme_href=None, meme_photo_href=None):
         old_meme = await self.get_meme(meme_name)

@@ -44,15 +44,18 @@ async def bot_start(message: types.Message):
     chat_id = user.user_id
     name_user = user.full_name
     count_users = await db.count_users()
+    count_memes = await db.count_memes()
     if str(chat_id) in admins:
         await message.answer(f'''
 Привет, {name_user}!
 У тебя права администратора! Введи /help_admin
-В боте {count_users} юзер(а).
+Пользователей в БД: {count_users} юзер(а).
+Мемов в БД: {count_memes} мем(а).
         ''')
     else:
         await message.answer(f'''
 Привет, {name_user}!
 Этот бот поможет тебе найти пояснение к мему!
+Сейчас в боте {count_memes} мем(а).
 ''')
     await message.answer('Нажми кнопку ниже для того, чтобы начать!', reply_markup=main_menu)
