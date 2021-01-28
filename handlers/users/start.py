@@ -32,13 +32,18 @@ db = DBCommands()
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):
-    # await log_user(message)
-    user = await db.add_new_user()
+    user = await db.get_user(message.chat.id)
+    if user is None:    # Если пользователя нет в БД
+        logging.info(f'Новый пользователь (/start): Name: {message.chat.full_name}, '
+                     f'chat_id: {message.chat.id}')
+        user = await db.add_new_user()
+    else:
+        id_user = user.id
+        logging.info(f'Зарегистрированный пользователь (/start): id: {id_user}, Name: {message.chat.full_name}, '
+                     f'chat_id: {message.chat.id}')
     chat_id = user.user_id
-    id_user = user.id
     name_user = user.full_name
     count_users = await db.count_users()
-    logging.info(f'Пользователь прописал команду /start: Name: {name_user}, id: {id_user}, chat_id: {chat_id}')
     if str(chat_id) in admins:
         await message.answer(f'''
 Привет, {name_user}!

@@ -30,13 +30,15 @@ class Meme(db.Model):
 
 
 class DBCommands:
+    # Функция возвращает объект из таблицы User, если такой user_id существует в БД. Возвращает None, если такого нет
     async def get_user(self, user_id):
         user = await User.query.where(User.user_id == user_id).gino.first()
         return user
 
     async def add_new_user(self):
         user = types.User.get_current()
-        old_user = await self.get_user(user.id)
+        old_user = await self.get_user(user.id)  # get_user берет в качестве аргумента аттрибут id
+        # типа telegram api User
         if old_user:
             return old_user
         new_user = User()
@@ -85,3 +87,10 @@ class DBCommands:
         new_meme.pic_href = meme_photo_href
         await new_meme.create()
         return new_meme
+
+    async def del_meme(self, meme_name):
+        meme = await self.get_meme(meme_name)
+        if meme:
+            await meme.delete()
+            return meme
+        return meme
