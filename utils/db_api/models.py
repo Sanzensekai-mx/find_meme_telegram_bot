@@ -31,7 +31,8 @@ class Meme(db.Model):
 
 class DBCommands:
     # Функция возвращает объект из таблицы User, если такой user_id существует в БД. Возвращает None, если такого нет
-    async def get_user(self, user_id):
+    @staticmethod
+    async def get_user(user_id):
         user = await User.query.where(User.user_id == user_id).gino.first()
         return user
 
@@ -48,11 +49,13 @@ class DBCommands:
         await new_user.create()
         return new_user
 
-    async def count_users(self) -> int:
+    @staticmethod
+    async def count_users() -> int:
         total = await db.func.count(User.id).gino.scalar()
         return total
 
-    async def get_meme(self, meme_name):
+    @staticmethod
+    async def get_meme(meme_name):
         meme = await Meme.query.where(Meme.meme_name == meme_name).gino.first()
         return meme
 
@@ -63,11 +66,13 @@ class DBCommands:
         else:
             return False
 
-    async def show_all_meme(self):
+    @staticmethod
+    async def show_all_meme():
         items = await Meme.query.gino.all()
         return items
 
-    async def count_memes(self) -> int:
+    @staticmethod
+    async def count_memes() -> int:
         total = await db.func.count(Meme.id).gino.scalar()
         return total
 
