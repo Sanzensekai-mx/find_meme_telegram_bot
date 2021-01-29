@@ -6,6 +6,9 @@ import json
 import os
 from datetime import timedelta
 import time
+from utils.db_api.models import DBCommands
+
+db = DBCommands()
 
 start_time = time.monotonic()
 page_link = 'https://memepedia.ru/all-memes/#.'

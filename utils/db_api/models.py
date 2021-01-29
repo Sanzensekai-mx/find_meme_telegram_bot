@@ -36,6 +36,11 @@ class DBCommands:
         user = await User.query.where(User.user_id == user_id).gino.first()
         return user
 
+    @staticmethod
+    async def all_users():
+        users = await User.query.gino.all()
+        return users
+
     async def add_new_user(self):
         user = types.User.get_current()
         old_user = await self.get_user(user.id)  # get_user берет в качестве аргумента аттрибут id
@@ -67,7 +72,7 @@ class DBCommands:
             return False
 
     @staticmethod
-    async def show_all_meme():
+    async def all_meme():
         items = await Meme.query.gino.all()
         return items
 

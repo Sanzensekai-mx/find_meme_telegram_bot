@@ -22,6 +22,9 @@ async def confirm_or_change(data, mes):
         kb_confirm.add(change_button)
     kb_confirm.add(InlineKeyboardButton('Подтвердить', callback_data='сonfirm'))
     await mes.answer(f'''
+ВНИМАНИЕ. Если вы хотите обновить название мема,
+то сначала удалите исходный мем и введите новые данные.
+\n/cancel_meme для отмены Добавления/Изменения мема. 
 Проверьте введенные данные.\n
 Название - {data.get("name")}\n
 Ссылка на картинку - {data.get("pic_href")}\n
@@ -71,7 +74,7 @@ async def enter_meme_name(message: Message, state: FSMContext):
 
         await AdminNewMeme.Pic.set()
     else:
-        name = message.text
+        name = message.text.strip()
         data['name'] = name
         await state.update_data(data)
         await confirm_or_change(data, message)
@@ -145,17 +148,6 @@ async def change_some_data(call: CallbackQuery):
 @dp.callback_query_handler(text_contains='сonfirm', chat_id=admins, state=AdminNewMeme.Confirm)
 async def confirm_new_meme(call: CallbackQuery, state: FSMContext):
     data_from_state = await state.get_data()
-    # with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
-    #         as data_r:
-    #     meme_data = json.load(data_r)
-    # meme_data.update({data_from_state.get('name'): {
-    #     'pic_href': data_from_state.get('pic_href'),
-    #     'describe': data_from_state.get('describe'),
-    #     'meme_href': data_from_state.get('meme_href')
-    # }})
-    # with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'w', encoding='utf-8') \
-    #         as data_w:
-    #     json.dump(meme_data, data_w, indent=4, ensure_ascii=False)
     await db.add_meme(
         meme_name=data_from_state.get('name'),
         meme_href=data_from_state.get('meme_href'),

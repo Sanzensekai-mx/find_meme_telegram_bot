@@ -1,5 +1,3 @@
-import os
-import json
 import logging
 from random import choice
 from aiogram.dispatcher.filters import Text
@@ -9,6 +7,9 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from keyboards.default import main_menu, cancel_ten_random
 from loader import dp
 from states.main_states import UserStates
+from utils.db_api.models import DBCommands
+
+db = DBCommands()
 
 logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO)
@@ -29,27 +30,26 @@ async def process_random_memes(state, mes=None, call=None):
          'page': 1}
     )
     state_data = await state.get_data()
-    with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
-            as dataset:
-        state_data.get('result_mem_search_by_page')
-        mem_data = json.load(dataset)
-        result_random = set()
-        state_data.get('result_mem_search_by_page').update({1: {}})
-        while len(result_random) < 10:
-            result_random.add(choice(list(mem_data.keys())))
-        result_kb = InlineKeyboardMarkup(row_width=5)
-        result_message = ''
-        for num, res in enumerate(result_random, 1):
-            res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
-            state_data.get('result_mem_search_by_page')[1].update({str(num): res})
-            result_kb.insert(res_button)
-            result_message += f'{num}. {res}\n\n'
-        result_kb.add(InlineKeyboardButton('Еще 10 мемов', callback_data='new_random'))
-        state_data.get('keyboards').update({1: result_kb})
-        state_data.get('all_result_messages').update({1: result_message})
-        await state.update_data(state_data)
-        await mes.answer(text=result_message, reply_markup=result_kb) if mes is not None \
-            else await call.message.answer(text=result_message, reply_markup=result_kb)
+    state_data.get('result_mem_search_by_page')
+    # mem_data = json.load(dataset)
+    mem_data = await db.all_meme()
+    result_random = set()
+    state_data.get('result_mem_search_by_page').update({1: {}})
+    while len(result_random) < 10:
+        result_random.add(choice(mem_data))
+    result_kb = InlineKeyboardMarkup(row_width=5)
+    result_message = ''
+    for num, res in enumerate(result_random, 1):
+        res_button = InlineKeyboardButton(str(num), callback_data=f"res_{num}:{num}")
+        state_data.get('result_mem_search_by_page')[1].update({str(num): res.meme_name})
+        result_kb.insert(res_button)
+        result_message += f'{num}. {res.meme_name}\n\n'
+    result_kb.add(InlineKeyboardButton('Еще 10 мемов', callback_data='new_random'))
+    state_data.get('keyboards').update({1: result_kb})
+    state_data.get('all_result_messages').update({1: result_message})
+    await state.update_data(state_data)
+    await mes.answer(text=result_message, reply_markup=result_kb) if mes is not None \
+        else await call.message.answer(text=result_message, reply_markup=result_kb)
 
 
 @dp.message_handler(Text(equals=['10 рандомных мемов ✨']))
