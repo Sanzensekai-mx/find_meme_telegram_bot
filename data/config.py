@@ -12,5 +12,5 @@ DATABASE = str(os.environ.get("DATABASE"))  # имя БД в pgAdmin
 # ip = str(os.environ.get("ip"))
 
 # Ссылка подключения к базе данных
-POSTGRES_URI = f"postgresql://{PG_USER}:{PG_PASS}@{ip}/{DATABASE}"
+POSTGRES_URI = f"postgresql://{PG_USER}:{PG_PASS}@{host}/{DATABASE}"
 
