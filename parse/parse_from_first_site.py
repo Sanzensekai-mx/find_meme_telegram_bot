@@ -6,9 +6,6 @@ import json
 import os
 from datetime import timedelta
 import time
-from utils.db_api.models import DBCommands
-
-db = DBCommands()
 
 start_time = time.monotonic()
 page_link = 'https://memepedia.ru/all-memes/#.'
@@ -18,6 +15,8 @@ html = response.content
 soup = BeautifulSoup(html, 'html.parser')
 memes_not_clear = {mem.text: mem['href']
                    for mem in soup.find_all('a', attrs={'href': re.compile(r'https://memepedia.ru/[a-zA-Z-_]+/')})}
+print(memes_not_clear)
+print(soup.find_all('a', attrs={'href': re.compile(r'https://memepedia.ru/[a-zA-Z-_]+/')}))
 memes = {}
 clear_mem_list = [item[0] for item in list(memes_not_clear.items())[11:-2]]
 for k in memes_not_clear.copy().keys():  # Цикл по итогу отфильтрует словарь мемов и создаст новый чистый словарь мемов

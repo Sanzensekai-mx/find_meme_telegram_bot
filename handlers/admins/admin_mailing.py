@@ -1,22 +1,24 @@
 import logging
 from asyncio import sleep
 
-from loader import dp, bot
 from aiogram.dispatcher import FSMContext
-from keyboards.default import main_menu, admin_cancel_mail_or_confirm, admin_cancel_mail
-from keyboards.inline import admin_mailing_kb
 from aiogram.types import Message, CallbackQuery, ContentType, \
     InputMediaPhoto, InputMediaVideo
+from loader import dp, bot
+from keyboards.default import main_menu, admin_cancel_mail_or_confirm, admin_cancel_mail
+from keyboards.inline import admin_mailing_kb
 from data.config import admins
 from states.main_states import AdminMailing
 from utils.db_api.models import DBCommands
 
 db = DBCommands()
 
-logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] '
+                           u'%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO)
 
-logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] '
+                           u'#%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.ERROR)
 
 
@@ -32,7 +34,8 @@ async def mailing(message: Message):
     count_users = await db.count_users()
     logging.info(f'from: {message.chat.full_name}, text: {message.text}')
     await message.answer("Выберите тип рассылки из меню. Нажмите /cancel_mail для отмены. "
-                         f"Сейчас в боте {count_users} пользователя(ей)", reply_markup=admin_cancel_mail)
+                         f"Сейчас в боте {count_users} пользователя(ей)",
+                         reply_markup=admin_cancel_mail)
     await message.answer("Отправить:", reply_markup=admin_mailing_kb)
     await AdminMailing.MailingMenu.set()
 
@@ -93,9 +96,9 @@ async def send_group_photo(message: Message, state: FSMContext):
             try:
                 await bot.send_media_group(chat_id=user.user_id, media=data_from_state.get('media_file_id'))
                 await sleep(0.3)
-            except Exception as e:
-                logging.error(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
-                await message.answer(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
+            except Exception as error:
+                logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+                await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
         await message.answer("Рассылка выполнена.", reply_markup=main_menu)
         await state.finish()
 
@@ -142,9 +145,9 @@ async def send_another(message: Message, state: FSMContext):
                                                        caption=message.caption) if caption_type_from_msg \
                 else await type_msg_dict[no_caption_type_from_msg](user.user_id, type_msg_dict['file_id'])
             await sleep(0.3)
-        except Exception as e:
-            logging.error(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
-            await message.answer(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
+        except Exception as error:
+            logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+            await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
 
@@ -159,9 +162,9 @@ async def send_everyone(message: Message, state: FSMContext):
             await bot.send_message(chat_id=user.user_id,
                                    text=text)
             await sleep(0.3)
-        except Exception as e:
-            logging.error(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
-            await message.answer(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
+        except Exception as error:
+            logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+            await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
 
@@ -176,8 +179,8 @@ async def send_forward_message(message: Message, state: FSMContext):
                                       from_chat_id=message.chat.id,
                                       message_id=message.message_id)
             await sleep(2)
-        except Exception as e:
-            logging.error(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
-            await message.answer(f'{e}, User: {user.full_name}, chat_id: {user.user_id}')
+        except Exception as error:
+            logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+            await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()

@@ -1,5 +1,5 @@
+from aiogram.types import User as User_api_type
 from utils.db_api.database import db
-from aiogram import types, Bot
 
 
 class User(db.Model):
@@ -30,7 +30,9 @@ class Meme(db.Model):
 
 
 class DBCommands:
-    # Функция возвращает объект из таблицы User, если такой user_id существует в БД. Возвращает None, если такого нет
+    # Функция возвращает объект из таблицы User,
+    # если такой user_id существует в БД.
+    # Возвращает None, если такого нет
     @staticmethod
     async def get_user(user_id):
         user = await User.query.where(User.user_id == user_id).gino.first()
@@ -42,7 +44,7 @@ class DBCommands:
         return users
 
     async def add_new_user(self):
-        user = types.User.get_current()
+        user = User_api_type.get_current()
         old_user = await self.get_user(user.id)  # get_user берет в качестве аргумента аттрибут id
         # типа telegram api User
         if old_user:
@@ -68,8 +70,7 @@ class DBCommands:
         meme = await self.get_meme(meme_name)
         if meme:
             return True
-        else:
-            return False
+        return False
 
     @staticmethod
     async def all_meme():

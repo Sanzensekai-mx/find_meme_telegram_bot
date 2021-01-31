@@ -1,11 +1,9 @@
-import os
-import json
 import logging
 
-from loader import dp
 from aiogram.dispatcher import FSMContext
-from keyboards.default import main_menu, admin_cancel_add_meme
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from loader import dp
+from keyboards.default import main_menu, admin_cancel_add_meme
 from data.config import admins
 from states.main_states import AdminNewMeme
 from utils.db_api.models import DBCommands
