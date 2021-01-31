@@ -1,4 +1,4 @@
-import os
+import re
 import logging
 from aiogram.utils.exceptions import BadRequest
 from .ten_random_memes import process_random_memes
@@ -40,8 +40,12 @@ async def open_choice_meme(current_call, meme_list, meme_id, state):
     except BadRequest:
         await current_call.message.answer('Описание мема не найдено.')
     try:
-        # Добавить вывод названия сайта по записи в json?
-        await current_call.message.answer('Нажми кнопку, чтобы открыть страницу мема в источнике на memepedia.ru',
+        pattern = re.compile(r'https?:\/\/\.?([-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]'
+                             r'{1,6})\b[-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*')
+        url = current_meme_db_object.meme_href
+        search_process = pattern.search(url)
+        site_name = search_process.group(1)
+        await current_call.message.answer(f'Нажми кнопку, чтобы открыть страницу мема в источнике на {site_name}',
                                           reply_markup=detailed_inline_kb)
     except Exception as e:
         logging.info(e)
