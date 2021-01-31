@@ -1,21 +1,24 @@
-import os
-import json
 import logging
 from asyncio import sleep
 
-from loader import dp, bot
 from aiogram.dispatcher import FSMContext
+from aiogram.types import Message, CallbackQuery, ContentType, \
+    InputMediaPhoto, InputMediaVideo
+from loader import dp, bot
 from keyboards.default import main_menu, admin_cancel_mail_or_confirm, admin_cancel_mail
 from keyboards.inline import admin_mailing_kb
-from aiogram.types import Message, CallbackQuery, ContentType, \
-    InputMediaPhoto, InputMediaVideo, InlineKeyboardButton, InlineKeyboardMarkup
 from data.config import admins
 from states.main_states import AdminMailing
+from utils.db_api.models import DBCommands
 
-logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+db = DBCommands()
+
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] '
+                           u'%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO)
 
-logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
+logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] '
+                           u'#%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.ERROR)
 
 
@@ -28,12 +31,11 @@ async def cancel_mail(message: Message, state: FSMContext):
 
 @dp.message_handler(chat_id=admins, commands=["mail"])
 async def mailing(message: Message):
-    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as users:
-        data = json.load(users)
-        amount_users = len(data.keys())
+    count_users = await db.count_users()
     logging.info(f'from: {message.chat.full_name}, text: {message.text}')
     await message.answer("Выберите тип рассылки из меню. Нажмите /cancel_mail для отмены. "
-                         f"Сейчас в боте {amount_users} пользователя(ей)", reply_markup=admin_cancel_mail)
+                         f"Сейчас в боте {count_users} пользователя(ей)",
+                         reply_markup=admin_cancel_mail)
     await message.answer("Отправить:", reply_markup=admin_mailing_kb)
     await AdminMailing.MailingMenu.set()
 
@@ -84,22 +86,19 @@ async def send_group_photo(message: Message, state: FSMContext):
     data_from_state = await state.get_data()
     if data_from_state.get('media_file_id') is None:
         await state.update_data({'media_file_id': []})
-    else:
-        print(data_from_state.get('media_file_id'))
+    # else:
+    #     print(data_from_state.get('media_file_id'))
     if message.photo or message.video:
         await process_media_send(message, state)
     elif message.text == 'Подтвердить':
-        with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
-            users_data = json.load(user_r)
-            users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
-            # users_chat_id = [user.get('chat_id') for user in users_data.values()]
-            for user_name, user_chat_id in users_name_chat_id.items():
-                try:
-                    await bot.send_media_group(chat_id=user_chat_id, media=data_from_state.get('media_file_id'))
-                    await sleep(0.3)
-                except Exception as e:
-                    logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
-                    await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
+        users_data = await db.all_users()
+        for user in users_data:
+            try:
+                await bot.send_media_group(chat_id=user.user_id, media=data_from_state.get('media_file_id'))
+                await sleep(0.3)
+            except Exception as error:
+                logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+                await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
         await message.answer("Рассылка выполнена.", reply_markup=main_menu)
         await state.finish()
 
@@ -120,9 +119,7 @@ async def send_another(message: Message, state: FSMContext):
         caption_type_from_msg = [k for k in message.values.keys() if k in type_dict_caption][0]
     except IndexError:
         no_caption_type_from_msg = [k for k in message.values.keys() if k in type_dict_without_caption][0]
-    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
-        users_data = json.load(user_r)
-        users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
+    users_data = await db.all_users()
     type_msg_dict = {}
     if caption_type_from_msg == 'document':
         type_msg_dict['document'] = bot.send_document
@@ -142,42 +139,32 @@ async def send_another(message: Message, state: FSMContext):
     elif no_caption_type_from_msg == 'video_note':
         type_msg_dict['video_note'] = bot.send_video_note
         type_msg_dict['file_id'] = message.video_note.file_id
-    for user_name, user_chat_id in users_name_chat_id.items():
+    for user in users_data:
         try:
-            await type_msg_dict[caption_type_from_msg](user_chat_id, type_msg_dict['file_id'],
+            await type_msg_dict[caption_type_from_msg](user.user_id, type_msg_dict['file_id'],
                                                        caption=message.caption) if caption_type_from_msg \
-                else await type_msg_dict[no_caption_type_from_msg](user_chat_id, type_msg_dict['file_id'])
+                else await type_msg_dict[no_caption_type_from_msg](user.user_id, type_msg_dict['file_id'])
             await sleep(0.3)
-        except Exception as e:
-            logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
-            await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
+        except Exception as error:
+            logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+            await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
-
-
-# Experimental
-# async def add_button(message):
-#     kb_b = InlineKeyboardMarkup().add(InlineKeyboardButton('Да', callback_data='yes_button'))
-#     kb_b.insert(InlineKeyboardButton('Нет', callback_data='no_button'))
-#     return kb_b
 
 
 # Отправить обычный текст, без медиа
 @dp.message_handler(chat_id=admins, state=AdminMailing.Text, content_types=ContentType.TEXT)
 async def send_everyone(message: Message, state: FSMContext):
     text = message.text
-    # await message.answer('Добавить кнопку?', reply_markup=await add_button(message))
-    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
-        users_data = json.load(user_r)
-        users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
-    for user_name, user_chat_id in users_name_chat_id.items():
+    users_data = await db.all_users()
+    for user in users_data:
         try:
-            await bot.send_message(chat_id=user_chat_id,
+            await bot.send_message(chat_id=user.user_id,
                                    text=text)
             await sleep(0.3)
-        except Exception as e:
-            logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
-            await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
+        except Exception as error:
+            logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+            await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
 
@@ -185,28 +172,15 @@ async def send_everyone(message: Message, state: FSMContext):
 # Отправить пересланное сообщение
 @dp.message_handler(chat_id=admins, state=AdminMailing.Forward, content_types=ContentType.all())
 async def send_forward_message(message: Message, state: FSMContext):
-    with open(os.path.join(os.getcwd(), 'data', 'user_info.json'), 'r', encoding='utf-8') as user_r:
-        users_data = json.load(user_r)
-        users_name_chat_id = {user: data.get('chat_id') for user, data in users_data.items()}
-    for user_name, user_chat_id in users_name_chat_id.items():
+    users_data = await db.all_users()
+    for user in users_data:
         try:
-            await bot.forward_message(chat_id=user_chat_id,
+            await bot.forward_message(chat_id=user.user_id,
                                       from_chat_id=message.chat.id,
                                       message_id=message.message_id)
             await sleep(2)
-        except Exception as e:
-            logging.error(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
-            await message.answer(f'{e}, User: {user_name}, chat_id: {user_chat_id}')
+        except Exception as error:
+            logging.error(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
+            await message.answer(f'{error}, User: {user.full_name}, chat_id: {user.user_id}')
     await message.answer("Рассылка выполнена.", reply_markup=main_menu)
     await state.finish()
-
-
-# Experimental
-# @dp.callback_query_handler(state=AdminMailing, text_contains='_button')
-# async def choice_to_add_button(call: CallbackQuery):
-#     answer = call.message.text.split('_')[0]
-#     if answer == 'yes':
-#         print('Введите текст кнопки.')
-#         await AdminMailing.AddButton.set()
-#     elif answer == 'no':
-#         pass

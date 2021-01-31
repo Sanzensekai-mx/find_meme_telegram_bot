@@ -1,5 +1,4 @@
 import os
-import json
 import logging
 from aiogram.utils.exceptions import BadRequest
 from .ten_random_memes import process_random_memes
@@ -7,19 +6,23 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from states.main_states import UserStates
 from loader import dp, bot
+from utils.db_api.models import DBCommands
+
+db = DBCommands()
 
 logging.basicConfig(format=u'%(filename)s [LINE:%(lineno)d] #%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO)
 
 
-async def open_choice_meme(current_call, meme_data, meme_id, state):
+async def open_choice_meme(current_call, meme_list, meme_id, state):
     state_data = await state.get_data()
+    current_meme_db_object = [meme_object for meme_object in meme_list
+                              if meme_object.meme_name == state_data.get('result_mem_search_by_page')
+                              [state_data.get('page')][meme_id]][0]
     try:
         detailed_inline_kb = InlineKeyboardMarkup().add(
             InlineKeyboardButton('Подробнее',
-                                 url=meme_data[state_data.get('result_mem_search_by_page')[state_data.get('page')]
-                                 [meme_id]]
-                                 ['meme_href']
+                                 url=current_meme_db_object.meme_href
                                  ))
     # Придумать другую заглушку?
     except BadRequest:
@@ -29,14 +32,11 @@ async def open_choice_meme(current_call, meme_data, meme_id, state):
     try:
         await bot.send_photo(
             chat_id=current_call.from_user.id,
-            photo=meme_data[state_data.get('result_mem_search_by_page')[state_data.get('page')][meme_id]]
-            ['pic_href'])
+            photo=current_meme_db_object.pic_href)
     except BadRequest:
         await current_call.message.answer('Картинка не найдена.')
     try:
-        await current_call.message.answer(
-            meme_data[state_data.get('result_mem_search_by_page')[state_data.get('page')][meme_id]]
-            ['describe'])
+        await current_call.message.answer(current_meme_db_object.describe)
     except BadRequest:
         await current_call.message.answer('Описание мема не найдено.')
     try:
@@ -52,9 +52,10 @@ async def action_process_callback(call, state):
     await call.answer(cache_time=60)
     with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
             as dataset:
-        data = json.load(dataset)
+        # data = json.load(dataset)
+        data_meme_list = await db.all_meme()
         cur_id = call.data.split(':')[1]
-        await open_choice_meme(current_call=call, meme_data=data, meme_id=cur_id, state=state)
+        await open_choice_meme(current_call=call, meme_list=data_meme_list, meme_id=cur_id, state=state)
 
 
 # search

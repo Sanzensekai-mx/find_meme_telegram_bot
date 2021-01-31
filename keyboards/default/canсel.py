@@ -59,3 +59,12 @@ admin_cancel_add_meme = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True
 )
+
+admin_cancel_del_meme = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text="/cancel_del_meme")
+        ]
+    ],
+    resize_keyboard=True
+)
