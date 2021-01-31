@@ -50,12 +50,9 @@ async def open_choice_meme(current_call, meme_list, meme_id, state):
 
 async def action_process_callback(call, state):
     await call.answer(cache_time=60)
-    with open(os.path.join(os.getcwd(), 'parse', 'mem_dataset.json'), 'r', encoding='utf-8') \
-            as dataset:
-        # data = json.load(dataset)
-        data_meme_list = await db.all_meme()
-        cur_id = call.data.split(':')[1]
-        await open_choice_meme(current_call=call, meme_list=data_meme_list, meme_id=cur_id, state=state)
+    data_meme_list = await db.all_meme()
+    cur_id = call.data.split(':')[1]
+    await open_choice_meme(current_call=call, meme_list=data_meme_list, meme_id=cur_id, state=state)
 
 
 # search
