@@ -1,12 +1,16 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 BOT_TOKEN = str(os.environ.get('BOT_TOKEN'))
 admins = str(os.environ.get('admins')).split(', ')
-# ip = os.getenv("ip")
-# BOT_TOKEN = os.getenv("BOT_TOKEN")
-# admins = str(os.getenv("admins")).split(', ')
-# host = os.getenv("PG_HOST")
-# PG_USER = os.getenv("PG_USER")
-# PG_PASS = os.getenv("PG_PASS")
+
+host = str(os.environ.get("PG_HOST"))  # хост базы данных
+PG_USER = str(os.environ.get("PG_USER"))  # имя владельца базы данных
+PG_PASS = str(os.environ.get("PG_PASS"))  # пароль бд
+DATABASE = str(os.environ.get("DATABASE"))  # имя БД в pgAdmin
+
+# ip = str(os.environ.get("ip"))
+
+# Ссылка подключения к базе данных
+POSTGRES_URI = f"postgresql://{PG_USER}:{PG_PASS}@{ip}/{DATABASE}"
+

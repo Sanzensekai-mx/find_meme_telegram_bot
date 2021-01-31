@@ -15,9 +15,14 @@ class AdminNewMeme(StatesGroup):
     Confirm = State()
 
 
+class AdminDelMeme(StatesGroup):
+    Del = State()
+
+
 class AdminMailing(StatesGroup):
     MailingMenu = State()
     Text = State()
     Media = State()
     AnotherMedia = State()
     Forward = State()
+    AddButton = State()
